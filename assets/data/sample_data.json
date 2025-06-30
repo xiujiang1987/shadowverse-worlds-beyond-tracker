@@ -1,0 +1,55 @@
+{
+  "sampleBattles": [
+    {
+      "id": 1,
+      "timestamp": "2025-01-15T10:30:00Z",
+      "opponent": "皇家衛兵",
+      "myClass": "巫師",
+      "result": "勝",
+      "bp": 25,
+      "rank": "藍寶石",
+      "note": "完美曲線，對手沒有解牌"
+    },
+    {
+      "id": 2,
+      "timestamp": "2025-01-15T11:15:00Z",
+      "opponent": "龍族",
+      "myClass": "巫師",
+      "result": "敗",
+      "bp": -18,
+      "rank": "藍寶石",
+      "note": "被早期龍壓制"
+    },
+    {
+      "id": 3,
+      "timestamp": "2025-01-15T12:00:00Z",
+      "opponent": "死靈",
+      "myClass": "主教",
+      "result": "勝",
+      "bp": 22,
+      "rank": "藍寶石",
+      "note": "後期回復優勢明顯"
+    }
+  ],
+  "playerProfile": {
+    "name": "示範玩家",
+    "joinDate": "2025-01-01",
+    "favoriteClass": "巫師",
+    "currentRank": "藍寶石",
+    "totalBP": 5420,
+    "gameTitle": "闇影詩章：凌越世界 (Shadowverse: Worlds Beyond)",
+    "settings": {
+      "autoAdjustRank": true,
+      "enableOCR": true,
+      "enableVoice": true,
+      "theme": "dark"
+    }
+  },
+  "rankThresholds": {
+    "綠寶石": { "name": "綠寶石", "icon": "🟢", "maintain": 10, "danger": 5 },
+    "黃寶石": { "name": "黃寶石", "icon": "🟠", "maintain": 25, "danger": 15 },
+    "紅寶石": { "name": "紅寶石", "icon": "🔴", "maintain": 40, "danger": 30 },
+    "藍寶石": { "name": "藍寶石", "icon": "🔵", "maintain": 55, "danger": 45 },
+    "鑽石": { "name": "鑽石", "icon": "💎", "maintain": 70, "danger": 60 }
+  }
+}

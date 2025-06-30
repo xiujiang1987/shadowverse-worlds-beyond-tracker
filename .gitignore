@@ -1,0 +1,33 @@
+# 臨時檔案
+*.tmp
+*.temp
+*~
+
+# IDE 檔案
+.vscode/
+.idea/
+
+# 系統檔案
+.DS_Store
+Thumbs.db
+
+# 日誌檔案
+*.log
+
+# 備份檔案
+*.bak
+*.backup
+
+# 測試檔案
+test_*.html
+test_*.js
+*_test.*
+
+# 臨時建置檔案
+fix_*.js
+temp_*.html
+debug_*.js
+
+# 本地配置檔案
+config.local.js
+settings.local.json

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadowverse: Worlds Beyond - 開發模式</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            background: #1a1a2e; 
+            color: white; 
+            margin: 0; 
+            padding: 20px;
+            text-align: center;
+        }
+        .launcher { 
+            max-width: 600px; 
+            margin: 50px auto; 
+            padding: 30px; 
+            background: rgba(255,255,255,0.1); 
+            border-radius: 15px; 
+        }
+        .btn { 
+            display: inline-block; 
+            padding: 15px 30px; 
+            margin: 10px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            color: white; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            transition: transform 0.3s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .note { color: #ccc; margin-top: 20px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="launcher">
+        <h1>🃏 Shadowverse: Worlds Beyond</h1>
+        <h2>開發工具選擇</h2>
+        
+        <a href="index.html" class="btn">🔧 模組化版本 (需伺服器)</a>
+        <a href="index_bundle.html" class="btn">🚀 單檔案版本 (可直接開啟)</a>
+        <a href="#" class="btn" onclick="buildBundle()">⚙️ 重新建置</a>
+        
+        <div class="note">
+            <p><strong>模組化版本</strong>：適用於開發，需要本地伺服器</p>
+            <p><strong>單檔案版本</strong>：適用於分享，可直接雙擊開啟</p>
+        </div>
+    </div>
+    
+    <script>
+        function buildBundle() {
+            alert('請執行: .\build.ps1\n或手動執行建置腳本');
+        }
+    </script>
+</body>
+</html>

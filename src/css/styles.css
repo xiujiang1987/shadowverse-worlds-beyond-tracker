@@ -1,0 +1,827 @@
+/* Shadowverse: Worlds Beyond Tracker - 主樣式文件 */
+
+/* 基礎重置與全域樣式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Microsoft JhengHei', Arial, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+    color: #fff;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* 容器與佈局 */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* 頭部區域 */
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    color: #ffd700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    margin-bottom: 10px;
+}
+
+/* 導航選單 */
+.nav-menu {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.nav-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 215, 0, 0.3);
+    padding: 10px 20px;
+    border-radius: 25px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.nav-btn:hover {
+    background: rgba(255, 215, 0, 0.2);
+    border-color: #ffd700;
+    transform: translateY(-2px);
+}
+
+.nav-btn.active {
+    background: linear-gradient(45deg, #ffd700, #ffb300);
+    border-color: #ffd700;
+    color: #000;
+}
+
+/* 面板系統 */
+.panel {
+    display: none;
+}
+
+.panel.active {
+    display: block;
+}
+
+/* 統計面板 */
+.stats-panel {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.stat-title {
+    font-size: 14px;
+    color: #ccc;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+/* 玩家資料面板 */
+.player-profile {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+.profile-section {
+    margin-bottom: 25px;
+}
+
+.profile-section h3 {
+    color: #ffd700;
+    margin-bottom: 15px;
+    border-bottom: 2px solid rgba(255, 215, 0, 0.3);
+    padding-bottom: 10px;
+}
+
+.profile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+
+.profile-item {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #ffd700;
+}
+
+.profile-label {
+    color: #ccc;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.profile-value {
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.profile-value.editable {
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.profile-value.editable:hover {
+    color: #ffd700;
+    transform: scale(1.05);
+}
+
+/* 表單元素 */
+.battle-form {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 25px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #ffd700;
+    font-weight: bold;
+}
+
+.form-group select, .form-group input {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.form-group select:focus, .form-group input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+/* 輸入驗證樣式 */
+.form-group input.error {
+    border: 2px solid #ff4444;
+    background: rgba(255, 68, 68, 0.2);
+    animation: shake 0.5s ease-in-out;
+}
+
+.form-group input.warning {
+    border: 2px solid #ffa500;
+    background: rgba(255, 165, 0, 0.2);
+}
+
+.form-group input.success {
+    border: 2px solid #4caf50;
+    background: rgba(76, 175, 80, 0.2);
+}
+
+/* 搖動動畫 */
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Toast 通知樣式 */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: bold;
+    z-index: 1000;
+    transform: translateX(300px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.toast.show {
+    transform: translateX(0);
+}
+
+.toast-success {
+    background: linear-gradient(45deg, #4caf50, #8bc34a);
+}
+
+.toast-error {
+    background: linear-gradient(45deg, #f44336, #ff6b6b);
+}
+
+.toast-warning {
+    background: linear-gradient(45deg, #ff9800, #ffc107);
+}
+
+.toast-info {
+    background: linear-gradient(45deg, #2196f3, #03a9f4);
+}
+
+.form-group select option {
+    background: #1a1a2e;
+    color: #fff;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+}
+
+/* 按鈕樣式 */
+.btn {
+    background: linear-gradient(45deg, #ff6b6b, #ffd700);
+    border: none;
+    padding: 15px 30px;
+    border-radius: 25px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+}
+
+.clear-btn {
+    background: linear-gradient(45deg, #666, #999);
+    margin-top: 10px;
+}
+
+.export-btn {
+    background: linear-gradient(45deg, #00bcd4, #4dd0e1);
+    margin-top: 10px;
+}
+
+.import-btn {
+    background: linear-gradient(45deg, #ff9800, #ffb74d);
+    margin-top: 10px;
+}
+
+/* 對戰歷史 */
+.battle-history {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.battle-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.battle-item:last-child {
+    border-bottom: none;
+}
+
+.battle-info {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.battle-result {
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-weight: bold;
+    margin-left: 15px;
+}
+
+.win {
+    background: linear-gradient(45deg, #4CAF50, #81C784);
+}
+
+.lose {
+    background: linear-gradient(45deg, #f44336, #e57373);
+}
+
+.bp-change {
+    color: #ffd700;
+    font-weight: bold;
+}
+
+/* 先手後手樣式 */
+.turn-order {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: bold;
+    margin: 0 4px;
+}
+
+.turn-order.先手 {
+    background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+    color: white;
+}
+
+.turn-order.後手 {
+    background: linear-gradient(45deg, #4ECDC4, #44A08D);
+    color: white;
+}
+
+/* 職業圖標 */
+.职业-icon {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    margin-right: 8px;
+}
+
+.皇家 { background: #FFD700; color: #000; }
+.精靈 { background: #228B22; color: #fff; }
+.巫師 { background: #4169E1; color: #fff; }
+.龍 { background: #DC143C; color: #fff; }
+.夜魔 { background: linear-gradient(45deg, #8B008B, #8B0000); color: #fff; }
+.主教 { background: #F0E68C; color: #000; }
+.復仇者 { background: #2F4F4F; color: #fff; }
+
+/* 階級計算器 */
+.rank-calculator {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 25px;
+    margin: 20px 0;
+}
+
+.rank-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.rank-card {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.rank-title {
+    color: #ffd700;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.rank-requirement {
+    color: #ccc;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.rank-status {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.progress-bar {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    height: 20px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(45deg, #4CAF50, #81C784);
+    transition: width 0.3s ease;
+}
+
+.rank-danger {
+    color: #ff6b6b;
+}
+
+.rank-safe {
+    color: #4CAF50;
+}
+
+.rank-warning {
+    color: #ffa726;
+}
+
+/* 數據同步功能 */
+.sync-section {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 2px solid rgba(255, 215, 0, 0.3);
+}
+
+.sync-buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.sync-btn {
+    background: linear-gradient(45deg, #4CAF50, #81C784);
+    border: none;
+    padding: 15px 20px;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.sync-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(76, 175, 80, 0.4);
+}
+
+.sync-btn.screenshot {
+    background: linear-gradient(45deg, #2196F3, #64B5F6);
+}
+
+.sync-btn.voice {
+    background: linear-gradient(45deg, #FF9800, #FFB74D);
+}
+
+.sync-btn.quick {
+    background: linear-gradient(45deg, #9C27B0, #BA68C8);
+}
+
+/* 匯入區域 */
+.import-area {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.import-area:hover {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.1);
+}
+
+.import-area.dragover {
+    border-color: #4CAF50;
+    background: rgba(76, 175, 80, 0.2);
+}
+
+.file-input {
+    display: none;
+}
+
+/* 對戰矩陣樣式 */
+.matrix-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.matrix-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.matrix-btn {
+    padding: 12px 24px;
+    border: 2px solid #444;
+    background: rgba(0, 0, 0, 0.3);
+    color: #ccc;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.matrix-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #666;
+}
+
+.matrix-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: white;
+}
+
+.matrix-table-container {
+    display: none;
+    margin-bottom: 30px;
+}
+
+.matrix-table-container.active {
+    display: block;
+}
+
+.matrix-table {
+    margin-bottom: 25px;
+    overflow-x: auto;
+}
+
+.matrix-table-content {
+    width: 100%;
+    border-collapse: collapse;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 10px;
+    overflow: hidden;
+    min-width: 700px;
+}
+
+.matrix-table-content th,
+.matrix-table-content td {
+    padding: 10px 8px;
+    text-align: center;
+    border: 1px solid #444;
+    font-size: 13px;
+}
+
+.matrix-header-corner {
+    background: linear-gradient(135deg, #434343 0%, #000000 100%);
+    color: #ffd700;
+    font-weight: bold;
+    position: sticky;
+    left: 0;
+    z-index: 3;
+}
+
+.matrix-header {
+    background: linear-gradient(135deg, #434343 0%, #2c2c2c 100%);
+    color: #ffd700;
+    font-weight: bold;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    min-width: 45px;
+}
+
+.matrix-row-header {
+    background: linear-gradient(135deg, #434343 0%, #2c2c2c 100%);
+    color: #ffd700;
+    font-weight: bold;
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    min-width: 80px;
+}
+
+.matrix-cell {
+    background: rgba(0, 0, 0, 0.3);
+    color: #ccc;
+    transition: all 0.3s ease;
+    cursor: help;
+    min-width: 45px;
+}
+
+.matrix-cell:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+.high-winrate {
+    background: rgba(76, 175, 80, 0.3) !important;
+    color: #4CAF50 !important;
+    font-weight: bold;
+}
+
+.medium-winrate {
+    background: rgba(255, 193, 7, 0.3) !important;
+    color: #FFC107 !important;
+    font-weight: bold;
+}
+
+.low-winrate {
+    background: rgba(244, 67, 54, 0.3) !important;
+    color: #F44336 !important;
+    font-weight: bold;
+}
+
+.matrix-stats {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.matrix-stats-content h4 {
+    color: #ffd700;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.matrix-stats-content p {
+    color: #ccc;
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.matchup-section {
+    margin-bottom: 20px;
+}
+
+.matchup-section h5 {
+    margin-bottom: 10px;
+}
+
+.matchup-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.matchup-section li {
+    padding: 5px 0;
+    color: #ccc;
+    border-bottom: 1px solid #333;
+}
+
+.matchup-section li:last-child {
+    border-bottom: none;
+}
+
+.matrix-info {
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 30px;
+}
+
+.matrix-info ul {
+    list-style: none;
+    padding: 0;
+}
+
+.matrix-info li {
+    padding: 8px 0;
+    border-bottom: 1px solid #333;
+}
+
+.matrix-info li:last-child {
+    border-bottom: none;
+}
+
+/* 響應式設計 */
+@media (max-width: 768px) {
+    .nav-menu {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .nav-btn {
+        font-size: 12px;
+        padding: 8px 16px;
+    }
+    
+    .matrix-toggle {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .matrix-btn {
+        width: 80%;
+        max-width: 300px;
+    }
+    
+    .matrix-table {
+        font-size: 12px;
+    }
+    
+    .matrix-table-content th,
+    .matrix-table-content td {
+        padding: 6px 4px;
+        font-size: 11px;
+    }
+    
+    .matrix-header {
+        writing-mode: horizontal-tb;
+        text-orientation: initial;
+        min-width: 35px;
+    }
+}
+
+/* 動畫效果 */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* 分組變動標記按鈕 */
+.rank-change-btn {
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px 8px;
+    margin-left: 10px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    opacity: 0.6;
+}
+
+.rank-change-btn:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.rank-change-btn.marked {
+    opacity: 1;
+    background: rgba(255, 193, 7, 0.2);
+    border: 1px solid #FFC107;
+}
+
+/* 對戰記錄編輯按鈕 */
+.battle-actions {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: auto;
+}
+
+.edit-btn, .delete-btn {
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    opacity: 0.6;
+}
+
+.edit-btn:hover {
+    opacity: 1;
+    background: rgba(33, 150, 243, 0.2);
+    transform: scale(1.1);
+}
+
+.delete-btn:hover {
+    opacity: 1;
+    background: rgba(244, 67, 54, 0.2);
+    transform: scale(1.1);
+}
+
+.battle-item {
+    position: relative;
+}

@@ -1,0 +1,34 @@
+{
+  "name": "shadowverse-worlds-beyond-battle-tracker",
+  "version": "1.0.0",
+  "description": "闇影詩章：凌越世界 (Shadowverse: Worlds Beyond) 對戰記錄追蹤應用",
+  "main": "index.html",
+  "scripts": {
+    "dev": "live-server .",
+    "build": "echo 'Pure HTML app, no build required'",
+    "test": "echo 'Open index.html in browser for testing'",
+    "lint": "echo 'No linting configured'",
+    "backup": "powershell -File scripts/backup.ps1",
+    "deploy": "powershell -File scripts/deploy.ps1"
+  },
+  "keywords": [
+    "shadowverse",
+    "worlds-beyond",
+    "battle-tracker",
+    "game-statistics",
+    "html5-app",
+    "offline-first"
+  ],
+  "author": "AI Park",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ai-park/shadowverse-worlds-beyond-tracker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ai-park/shadowverse-worlds-beyond-tracker/issues"
+  },
+  "homepage": "https://ai-park.github.io/shadowverse-worlds-beyond-tracker"
+}

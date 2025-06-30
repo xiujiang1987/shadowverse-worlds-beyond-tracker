@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>闇影詩章：凌越世界 (Shadowverse: Worlds Beyond) - 對戰紀錄APP</title>
+    <link rel="stylesheet" href="src/css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🃏 闇影詩章：凌越世界 (Shadowverse: Worlds Beyond)</h1>
+            <p>對戰紀錄追蹤系統</p>
+            
+            <!-- 導航選單 -->
+            <div class="nav-menu">
+                <button class="nav-btn active" onclick="showPanel('stats')">📊 對戰統計</button>
+                <button class="nav-btn" onclick="showPanel('matrix')">🎯 對戰矩陣</button>
+                <button class="nav-btn" onclick="showPanel('player')">👤 玩家資料</button>
+                <button class="nav-btn" onclick="showPanel('battle')">⚔️ 對戰記錄</button>
+                <button class="nav-btn" onclick="showPanel('settings')">⚙️ 設定匯入</button>
+            </div>
+        </div>
+        
+        <!-- 對戰統計面板 -->
+        <div id="statsPanel" class="panel active">
+            <div class="stats-panel">
+                <div class="stat-card">
+                    <div class="stat-title">起始分組</div>
+                    <div class="stat-value" id="currentRank" style="cursor: pointer; transition: all 0.3s; font-size: 20px;" onclick="editCurrentRank()"></div>
+                    <small style="color: #ccc; font-size: 12px;">點擊編輯</small>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">起始BP</div>
+                    <div class="stat-value" id="startingBP" style="cursor: pointer; transition: all 0.3s;" onclick="editStartingBP()">43945</div>
+                    <small style="color: #ccc; font-size: 12px;">點擊編輯</small>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">目前BP</div>
+                    <div class="stat-value" id="currentBP">45427</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">目前階級</div>
+                    <div class="stat-value" id="currentRankLevel">A1</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">總對戰場數</div>
+                    <div class="stat-value" id="totalGames">10</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">總勝率</div>
+                    <div class="stat-value" id="winRate">60%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">先手勝率</div>
+                    <div class="stat-value" id="firstWinRate">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">後手勝率</div>
+                    <div class="stat-value" id="secondWinRate">--</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">連勝/連敗</div>
+                    <div class="stat-value" id="streak">1敗</div>
+                </div>
+            </div>
+            
+            <div class="rank-calculator">
+                <h3 style="color: #ffd700; margin-bottom: 20px;">🏆 分組升降計算器</h3>
+                <div class="rank-info">
+                    <div class="rank-card" style="border-left: 8px solid #4caf50;">
+                        <div class="rank-title">🟢 綠寶石分組 <span style='color:#4caf50'>(x1.0)</span></div>
+                        <div class="rank-requirement">• 新手分組<br>• 升級條件：達到一定BP自動升級<br>• 勝率無壓力，倍率x1.0</div>
+                    </div>
+                    <div class="rank-card" style="border-left: 8px solid #ffb300;">
+                        <div class="rank-title">🟠 黃寶石分組 <span style='color:#ffb300'>(x1.1)</span></div>
+                        <div class="rank-requirement">• 進階分組<br>• 升級條件：BP達標自動升級<br>• 勝率建議45%以上，倍率x1.1</div>
+                    </div>
+                    <div class="rank-card" style="border-left: 8px solid #e53935;">
+                        <div class="rank-title">🔴 紅寶石分組 <span style='color:#e53935'>(x1.3)</span></div>
+                        <div class="rank-requirement">• 中高級分組<br>• 升級條件：BP達標自動升級<br>• 勝率建議50%以上，倍率x1.3</div>
+                    </div>
+                    <div class="rank-card" style="border-left: 8px solid #1e88e5;">
+                        <div class="rank-title">🔵 藍寶石分組 <span style='color:#1e88e5'>(x1.5)</span></div>
+                        <div class="rank-requirement">• 高級分組<br>• 升級條件：BP達標自動升級<br>• 勝率建議55%以上，倍率x1.5</div>
+                    </div>
+                    <div class="rank-card" style="border-left: 8px solid #b39ddb;">
+                        <div class="rank-title">💎 鑽石分組 <span style='color:#b39ddb'>(x2.0)</span></div>
+                        <div class="rank-requirement">• 最高分組<br>• 維持條件：勝率60%以上<br>• 低於50%有掉級風險，倍率x2.0</div>
+                    </div>
+                </div>
+                
+                <div class="rank-status">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span><strong>目前狀態分析：</strong></span>
+                        <span id="rankStatusText" class="rank-safe">✅ 分組安全</span>
+                    </div>
+                    
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="rankProgress" style="width: 60%"></div>
+                    </div>
+                    
+                    <div id="rankAnalysis" style="color: #ccc; font-size: 14px; margin-top: 10px;">
+                        根據您目前60%的勝率，在鑽石分組中表現良好，建議繼續保持。
+                    </div>
+                    
+                    <div id="rankPrediction" style="color: #ffa726; font-size: 14px; margin-top: 10px;">
+                        • 如果接下來5場全敗，勝率將降至46%，有掉級風險<br>
+                        • 如果接下來5場全勝，勝率將升至71%，分組非常穩定
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 對戰矩陣面板 -->
+        <div id="matrixPanel" class="panel">
+            <div class="matrix-container">
+                <h2 style="color: #ffd700; text-align: center; margin-bottom: 30px;">🎯 職業對戰勝率矩陣</h2>
+                
+                <!-- 矩陣切換按鈕 -->
+                <div class="matrix-toggle">
+                    <button class="matrix-btn active" onclick="showMatrixType('first')" id="firstMatrixBtn">🔴 先手勝率矩陣</button>
+                    <button class="matrix-btn" onclick="showMatrixType('second')" id="secondMatrixBtn">🔵 後手勝率矩陣</button>
+                </div>
+                
+                <!-- 先手勝率矩陣 -->
+                <div id="firstMatrix" class="matrix-table-container active">
+                    <h3 style="color: #FF6B6B; text-align: center; margin-bottom: 20px;">🔴 先手勝率矩陣</h3>
+                    <div class="matrix-table" id="firstMatrixTable">
+                        <!-- 先手矩陣表格將在此動態生成 -->
+                    </div>
+                    <div class="matrix-stats" id="firstMatrixStats">
+                        <!-- 先手統計將在此顯示 -->
+                    </div>
+                </div>
+                
+                <!-- 後手勝率矩陣 -->
+                <div id="secondMatrix" class="matrix-table-container">
+                    <h3 style="color: #4ECDC4; text-align: center; margin-bottom: 20px;">🔵 後手勝率矩陣</h3>
+                    <div class="matrix-table" id="secondMatrixTable">
+                        <!-- 後手矩陣表格將在此動態生成 -->
+                    </div>
+                    <div class="matrix-stats" id="secondMatrixStats">
+                        <!-- 後手統計將在此顯示 -->
+                    </div>
+                </div>
+                
+                <!-- 矩陣說明 -->
+                <div class="matrix-info">
+                    <h4 style="color: #ffd700; margin-bottom: 15px;">📋 使用說明</h4>
+                    <ul style="color: #ccc; line-height: 1.6;">
+                        <li><strong>縱軸（左側）</strong>：您使用的職業</li>
+                        <li><strong>橫軸（上方）</strong>：對手使用的職業</li>
+                        <li><strong>數值</strong>：該組合的勝率百分比</li>
+                        <li><strong>顏色</strong>：
+                            <span style="color: #4CAF50;">綠色</span> = 高勝率 (≥70%), 
+                            <span style="color: #FFC107;">黃色</span> = 中等勝率 (50-69%), 
+                            <span style="color: #F44336;">紅色</span> = 低勝率 (<50%)
+                        </li>
+                        <li><strong>--</strong>：表示該組合尚無對戰數據</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 玩家資料面板 -->
+        <div id="playerPanel" class="panel">
+            <div class="player-profile">
+                <div class="profile-section">
+                    <h3>👤 基本資料</h3>
+                    <div class="profile-grid">
+                        <div class="profile-item">
+                            <div class="profile-label">玩家名稱</div>
+                            <div class="profile-value editable" id="playerName" onclick="editPlayerName()">未設定</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-label">遊戲ID</div>
+                            <div class="profile-value editable" id="gameId" onclick="editGameId()">未設定</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-label">註冊日期</div>
+                            <div class="profile-value" id="registerDate">2025-06-29</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-label">主要職業</div>
+                            <div class="profile-value editable" id="mainClass" onclick="editMainClass()">龍</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-section">
+                    <h3>🎯 遊戲目標</h3>
+                    <div class="profile-grid">
+                        <div class="profile-item">
+                            <div class="profile-label">目標分組</div>
+                            <div class="profile-value editable" id="targetRank" onclick="editTargetRank()">鑽石</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-label">目標勝率</div>
+                            <div class="profile-value" id="targetWinRate">70%</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-label">月目標場數</div>
+                            <div class="profile-value" id="monthlyTarget">100場</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-label">目標BP</div>
+                            <div class="profile-value" id="targetBP">60000</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="profile-section">
+                    <h3>📊 歷史紀錄</h3>
+                    <div class="profile-grid">
+                        <div class="profile-item">
+                            <div class="profile-label">最高分組</div>
+                            <div class="profile-value" id="highestRank">鑽石</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-label">最高BP</div>
+                            <div class="profile-value" id="highestBP">52000</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-label">最長連勝</div>
+                            <div class="profile-value" id="longestWinStreak">8場</div>
+                        </div>
+                        <div class="profile-item">
+                            <div class="profile-label">總遊戲時間</div>
+                            <div class="profile-value" id="totalPlayTime">45小時</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 保存操作區域 -->
+                <div class="profile-section">
+                    <h3>💾 資料管理</h3>
+                    <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
+                        <button class="btn" onclick="savePlayerProfile()" style="background: #4caf50;">
+                            💾 保存資料
+                        </button>
+                        <button class="btn" onclick="resetPlayerProfile()" style="background: #ff9800;">
+                            🔄 重置資料
+                        </button>
+                        <button class="btn" onclick="exportPlayerProfile()" style="background: #2196f3;">
+                            📤 匯出資料
+                        </button>
+                        <button class="btn" onclick="exportRankChangeAnalysis()" style="background: #9c27b0;">
+                            📊 匯出分組變動分析
+                        </button>
+                    </div>
+                    <div id="saveStatus" style="margin-top: 10px; color: #4caf50; font-size: 14px; display: none;">
+                        ✅ 資料已保存
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 對戰記錄面板 -->
+        <div id="battlePanel" class="panel">
+            <div class="battle-form">
+                <h3 style="color: #ffd700; margin-bottom: 20px;">⚔️ 新增對戰記錄</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="myClass">我的職業</label>
+                        <select id="myClass">
+                            <option value="皇家">皇家</option>
+                            <option value="精靈">精靈</option>
+                            <option value="巫師">巫師</option>
+                            <option value="龍" selected>龍</option>
+                            <option value="夜魔">夜魔</option>
+                            <option value="主教">主教</option>
+                            <option value="復仇者">復仇者</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="opponentClass">對手職業</label>
+                        <select id="opponentClass">
+                            <option value="皇家">皇家</option>
+                            <option value="精靈">精靈</option>
+                            <option value="巫師">巫師</option>
+                            <option value="龍">龍</option>
+                            <option value="夜魔">夜魔</option>
+                            <option value="主教">主教</option>
+                            <option value="復仇者">復仇者</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="turnOrder">先後手</label>
+                        <select id="turnOrder">
+                            <option value="">請選擇</option>
+                            <option value="先手">先手</option>
+                            <option value="後手">後手</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="result">對戰結果</label>
+                        <select id="result">
+                            <option value="">請選擇</option>
+                            <option value="勝">勝利</option>
+                            <option value="敗">敗北</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label for="bpChange">BP變化</label>
+                        <input type="number" id="bpChange" placeholder="建議值: +320" min="0">
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="addBattle()">新增對戰記錄</button>
+            </div>
+            
+            <div class="battle-history">
+                <h3 style="color: #ffd700; padding: 20px; margin: 0;">📋 對戰歷史</h3>
+                <div id="battleList"></div>
+            </div>
+            
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn export-btn" onclick="exportData()">📥 匯出數據</button>
+                <button class="btn clear-btn" onclick="clearAllData()">🗑️ 清除數據</button>
+            </div>
+        </div>
+        
+        <!-- 設定匯入面板 -->
+        <div id="settingsPanel" class="panel">
+            <div class="import-area" id="importArea" onclick="document.getElementById('fileInput').click();">
+                <p>📁 點擊此處選擇檔案或拖放文字檔案進行匯入</p>
+                <p style="color: #ccc; font-size: 14px;">支援格式：.txt 文字檔案</p>
+                <input type="file" id="fileInput" class="file-input" accept=".txt" onchange="importFromFile(event)">
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript 模組 -->
+    <script src="src/js/config.js"></script>
+    <script src="src/js/data-manager.js"></script>
+    <script src="src/js/rank-manager.js"></script>
+    <script src="src/js/ui-controller.js"></script>
+    
+    <!-- 初始化腳本 -->
+    <script>
+        // 確保所有模組載入後再初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('應用程式正在初始化...');
+            
+            // 檢查必要的物件是否存在
+            if (typeof dataManager === 'undefined') {
+                console.error('DataManager 未載入！');
+            }
+            if (typeof rankManager === 'undefined') {
+                console.error('RankManager 未載入！');
+            }
+            if (typeof uiController === 'undefined') {
+                console.error('UIController 未載入！');
+            }
+            
+            console.log('應用程式初始化完成！');
+        });
+    </script>
+</body>
+</html>
