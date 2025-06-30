@@ -1,0 +1,13 @@
+# GitHub 推送指令
+
+# 1. 確認遠端倉庫已添加
+git remote -v
+
+# 2. 推送到 GitHub
+git push -u origin main
+
+# 3. 驗證推送成功
+git status
+
+# 4. 查看遠端分支
+git branch -r
