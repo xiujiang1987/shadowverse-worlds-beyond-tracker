@@ -1843,11 +1843,16 @@ class RankManager {
     }
 
     // 自動階級調整邏輯
+    // 注意：此功能目前為實驗性質，分組升降規則尚未完善
+    // 建議使用手動分組標記功能以獲得更準確的分組追蹤
     static autoAdjustRank(winRate, totalGames, currentRank, lastMatchResult = null) {
         // 需要至少15場對戰才開始分組調整
         if (totalGames < CONFIG.GAME_RULES.MIN_GAMES_FOR_RANK_ADJUSTMENT) {
             return currentRank;
         }
+        
+        // TODO: 需要更多實際遊戲數據來完善升降級規則
+        // 目前的邏輯僅為基礎估算，可能與實際遊戲規則有差異
         
         const rankOrder = ['綠寶石', '黃寶石', '紅寶石', '藍寶石', '鑽石'];
         const currentIndex = rankOrder.indexOf(currentRank);
