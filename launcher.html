@@ -39,19 +39,26 @@
         <h1>🃏 Shadowverse: Worlds Beyond</h1>
         <h2>開發工具選擇</h2>
         
-        <a href="index.html" class="btn">🔧 模組化版本 (需伺服器)</a>
-        <a href="index_bundle.html" class="btn">🚀 單檔案版本 (可直接開啟)</a>
+        <a href="index.html" class="btn">🔧 模組化版本 (需本地伺服器)</a>
+        <a href="index_bundle.html" class="btn" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">🚀 單檔案版本 (推薦)</a>
+        <a href="bp_test.html" class="btn">🧪 BP驗證測試</a>
+        <a href="#" class="btn" onclick="startServer()">🌐 啟動本地伺服器</a>
         <a href="#" class="btn" onclick="buildBundle()">⚙️ 重新建置</a>
         
         <div class="note">
-            <p><strong>模組化版本</strong>：適用於開發，需要本地伺服器</p>
-            <p><strong>單檔案版本</strong>：適用於分享，可直接雙擊開啟</p>
+            <p><strong>單檔案版本（推薦）</strong>：包含 v1.4.4 修復，可直接雙擊開啟</p>
+            <p><strong>模組化版本</strong>：適用於開發，需要本地伺服器或 Live Server</p>
+            <p><strong>BP驗證測試</strong>：快速驗證 BP 輸入修復是否正常</p>
         </div>
     </div>
     
     <script>
         function buildBundle() {
-            alert('請執行: .\build.ps1\n或手動執行建置腳本');
+            alert('請執行: .\\build.ps1\n或手動執行建置腳本');
+        }
+        
+        function startServer() {
+            alert('請執行: .\\start_server.ps1\n或手動啟動本地伺服器\n\n這將啟動 HTTP 伺服器讓模組化版本正常運行');
         }
     </script>
 </body>
