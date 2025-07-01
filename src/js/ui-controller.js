@@ -188,6 +188,16 @@ class UIController {
         const bpChangeInput = document.getElementById('bpChange');
         const bpValue = bpChangeInput?.value.trim().replace(/^\+/, ''); // 移除前導+號和空白
         
+        // 調試日誌 - 將在控制台顯示實際值
+        console.log('Debug - addBattle 調試資訊:');
+        console.log('bpChangeInput:', bpChangeInput);
+        console.log('原始值 bpChangeInput.value:', bpChangeInput?.value);
+        console.log('處理後 bpValue:', bpValue);
+        console.log('bpValue 類型:', typeof bpValue);
+        console.log('bpValue === "":', bpValue === '');
+        console.log('bpValue === null:', bpValue === null);
+        console.log('bpValue === undefined:', bpValue === undefined);
+        
         // 驗證必填欄位
         if (!turnOrder) {
             alert('請選擇先手或後手！');
