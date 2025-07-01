@@ -186,8 +186,7 @@ class UIController {
         const turnOrder = document.getElementById('turnOrder')?.value;
         const result = document.getElementById('result')?.value;
         const bpChangeInput = document.getElementById('bpChange');
-        const bpValue = bpChangeInput?.value.replace(/^\+/, ''); // 移除前導+號
-        const bpChange = parseInt(bpValue) || 0;
+        const bpValue = bpChangeInput?.value.trim().replace(/^\+/, ''); // 移除前導+號和空白
         
         // 驗證必填欄位
         if (!turnOrder) {
@@ -202,9 +201,19 @@ class UIController {
             return;
         }
         
-        if (bpChange === 0) {
+        // 修正BP驗證邏輯：允許0值，但不允許空值或無效數字
+        if (bpValue === '' || bpValue === null || bpValue === undefined) {
             alert('請輸入BP變化值！');
             bpChangeInput?.focus();
+            bpChangeInput?.classList.add('error');
+            return;
+        }
+        
+        const bpChange = parseInt(bpValue);
+        if (isNaN(bpChange)) {
+            alert('BP變化值必須是有效數字！');
+            bpChangeInput?.focus();
+            bpChangeInput?.select();
             bpChangeInput?.classList.add('error');
             return;
         }
@@ -656,75 +665,6 @@ class UIController {
             rank.maintain, rank.danger, dataManager.currentRank
         );
         rankPrediction.innerHTML = prediction;
-    }
-
-    // 新增對戰記錄
-    addBattle() {
-        const myClass = document.getElementById('myClass')?.value;
-        const opponentClass = document.getElementById('opponentClass')?.value;
-        const turnOrder = document.getElementById('turnOrder')?.value;
-        const result = document.getElementById('result')?.value;
-        const bpChangeInput = document.getElementById('bpChange');
-        const bpValue = bpChangeInput?.value.replace(/^\+/, ''); // 移除前導+號
-        const bpChange = parseInt(bpValue) || 0;
-        
-        // 驗證必填欄位
-        if (!turnOrder) {
-            alert('請選擇先手或後手！');
-            document.getElementById('turnOrder')?.focus();
-            return;
-        }
-        
-        if (!result) {
-            alert('請選擇對戰結果！');
-            document.getElementById('result')?.focus();
-            return;
-        }
-        
-        if (bpChange === 0) {
-            alert('請輸入BP變化值！');
-            bpChangeInput?.focus();
-            bpChangeInput?.classList.add('error');
-            return;
-        }
-        
-        // 驗證BP值範圍
-        if (Math.abs(bpChange) > 1000) {
-            const confirmMsg = `BP變化值 ${bpChange} 似乎很大，是否確認無誤？`;
-            if (!confirm(confirmMsg)) {
-                bpChangeInput?.focus();
-                bpChangeInput?.select();
-                return;
-            }
-        }
-        
-        const newBattle = {
-            myClass,
-            opponentClass,
-            turnOrder,
-            result,
-            bpChange
-        };
-        
-        dataManager.addBattle(newBattle);
-        
-        // 成功提示
-        bpChangeInput?.classList.remove('error', 'warning');
-        bpChangeInput?.classList.add('success');
-        setTimeout(() => {
-            bpChangeInput?.classList.remove('success');
-        }, 1000);
-        
-        // 清空表單
-        if (bpChangeInput) bpChangeInput.value = '';
-        document.getElementById('turnOrder').value = '';
-        document.getElementById('result').value = '';
-        
-        this.updateStats();
-        this.renderBattles();
-        
-        // 顯示成功訊息
-        this.showToast('對戰記錄已新增！', 'success');
     }
 
     // 編輯起始BP
