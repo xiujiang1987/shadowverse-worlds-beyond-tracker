@@ -2,7 +2,19 @@
 # 使用 Python 內建的 HTTP 伺服器來執行模組化版本
 
 Write-Host "🚀 啟動本地伺服器..." -ForegroundColor Green
-Write-Host "📁 工作目錄: $(Get-Location)" -ForegroundColor Yellow
+
+# 取得腳本所在目錄
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+Write-Host "📁 腳本位置: $scriptDir" -ForegroundColor Yellow
+
+# 切換到專案目錄
+if (Test-Path $scriptDir) {
+    Set-Location $scriptDir
+    Write-Host "📂 切換到專案目錄: $(Get-Location)" -ForegroundColor Green
+} else {
+    Write-Host "❌ 找不到專案目錄" -ForegroundColor Red
+    exit 1
+}
 
 # 檢查 Python 是否可用
 $pythonCmd = $null
