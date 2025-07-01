@@ -1138,12 +1138,15 @@ body {
                     </div>
                     
                     <div class="form-group" style="grid-column: span 2;">
-                        <label for="bpChange">BP變化</label>
-                        <input type="number" id="bpChange" placeholder="建議值: +320" min="0">
+                        <label for="bpChange">BP變化 <span style="color: #4CAF50; font-size: 12px;">💡 輸入完成後按 Enter 鍵提交</span></label>
+                        <input type="number" id="bpChange" placeholder="建議值: +320" min="0" title="輸入BP變化值，按Enter鍵提交對戰記錄">
                     </div>
                 </div>
                 
-                <button class="btn" onclick="addBattle()">新增對戰記錄</button>
+                <!-- 移除按鈕，改用 Enter 鍵提交 -->
+                <div style="text-align: center; padding: 15px; background: rgba(76, 175, 80, 0.1); border-radius: 8px; margin: 10px 0;">
+                    <span style="color: #4CAF50; font-size: 14px;">⌨️ 填寫完所有欄位後，在 BP 輸入框按 <kbd style="background: #333; color: #fff; padding: 3px 6px; border-radius: 3px;">Enter</kbd> 鍵即可新增對戰記錄</span>
+                </div>
             </div>
             
             <div class="battle-history">
@@ -2202,16 +2205,6 @@ class UIController {
         const result = document.getElementById('result')?.value;
         const bpChangeInput = document.getElementById('bpChange');
         const bpValue = bpChangeInput?.value.trim().replace(/^\+/, ''); // 移除前導+號和空白
-        
-        // 調試日誌 - 將在控制台顯示實際值
-        console.log('Debug - addBattle 調試資訊:');
-        console.log('bpChangeInput:', bpChangeInput);
-        console.log('原始值 bpChangeInput.value:', bpChangeInput?.value);
-        console.log('處理後 bpValue:', bpValue);
-        console.log('bpValue 類型:', typeof bpValue);
-        console.log('bpValue === "":', bpValue === '');
-        console.log('bpValue === null:', bpValue === null);
-        console.log('bpValue === undefined:', bpValue === undefined);
         
         // 驗證必填欄位
         if (!turnOrder) {

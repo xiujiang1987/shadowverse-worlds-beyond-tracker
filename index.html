@@ -309,12 +309,15 @@
                     </div>
                     
                     <div class="form-group" style="grid-column: span 2;">
-                        <label for="bpChange">BP變化</label>
-                        <input type="number" id="bpChange" placeholder="建議值: +320" min="0">
+                        <label for="bpChange">BP變化 <span style="color: #4CAF50; font-size: 12px;">💡 輸入完成後按 Enter 鍵提交</span></label>
+                        <input type="number" id="bpChange" placeholder="建議值: +320" min="0" title="輸入BP變化值，按Enter鍵提交對戰記錄">
                     </div>
                 </div>
                 
-                <button class="btn" onclick="addBattle()">新增對戰記錄</button>
+                <!-- 移除按鈕，改用 Enter 鍵提交 -->
+                <div style="text-align: center; padding: 15px; background: rgba(76, 175, 80, 0.1); border-radius: 8px; margin: 10px 0;">
+                    <span style="color: #4CAF50; font-size: 14px;">⌨️ 填寫完所有欄位後，在 BP 輸入框按 <kbd style="background: #333; color: #fff; padding: 3px 6px; border-radius: 3px;">Enter</kbd> 鍵即可新增對戰記錄</span>
+                </div>
             </div>
             
             <div class="battle-history">
