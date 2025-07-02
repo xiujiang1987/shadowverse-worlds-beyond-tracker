@@ -483,6 +483,22 @@
             }
         }
         
+        function exportRankChangeAnalysis() {
+            if (uiController && typeof uiController.exportRankAnalysis === 'function') {
+                uiController.exportRankAnalysis();
+            } else {
+                console.error('uiController 尚未初始化或 exportRankAnalysis 方法不存在');
+            }
+        }
+        
+        function exportPlayerProfile() {
+            if (uiController && typeof uiController.exportData === 'function') {
+                uiController.exportData();
+            } else {
+                console.error('uiController 尚未初始化');
+            }
+        }
+        
         function importFromFile(event) {
             if (uiController && typeof uiController.importFromFile === 'function') {
                 uiController.importFromFile(event);

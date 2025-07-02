@@ -3,7 +3,7 @@
 
 const CONFIG = {
     // 版本資訊
-    VERSION: 'v1.5.2',
+    VERSION: 'v1.5.3',
     BUILD_DATE: '2025-07-03',
     
     // localStorage keys
