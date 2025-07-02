@@ -39,7 +39,7 @@
     "totalBP": 5420,
     "gameTitle": "闇影詩章：凌越世界 (Shadowverse: Worlds Beyond)",
     "settings": {
-      "autoAdjustRank": true,
+      "autoAdjustGroup": true,
       "enableOCR": true,
       "enableVoice": true,
       "theme": "dark"

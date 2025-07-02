@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadowverse Tracker - Debug Version</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .nav-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .nav-btn.active {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            transform: translateY(-2px);
+        }
+        .panel {
+            display: none;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 20px;
+        }
+        .panel.active {
+            display: block;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        button {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #1976d2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🃏 Shadowverse: Worlds Beyond Tracker</h1>
+            <p>Debug Version - 功能測試</p>
+        </div>
+
+        <div class="nav-bar">
+            <button class="nav-btn active" onclick="showPanel('debug')">🔧 Debug</button>
+            <button class="nav-btn" onclick="showPanel('stats')">📊 統計</button>
+            <button class="nav-btn" onclick="showPanel('test')">🧪 測試</button>
+        </div>
+
+        <!-- Debug 面板 -->
+        <div id="debugPanel" class="panel active">
+            <h2>🔧 Debug 資訊</h2>
+            <div class="test-section">
+                <h3>模組載入狀態</h3>
+                <div id="moduleStatus"></div>
+            </div>
+            <div class="test-section">
+                <h3>全域變數狀態</h3>
+                <div id="globalStatus"></div>
+            </div>
+            <div class="test-section">
+                <h3>DOM 準備狀態</h3>
+                <div id="domStatus"></div>
+            </div>
+        </div>
+
+        <!-- 統計面板 -->
+        <div id="statsPanel" class="panel">
+            <h2>📊 對戰統計</h2>
+            <p>這裡應該顯示統計資料...</p>
+            <button onclick="testUIInit()">測試 UI 初始化</button>
+        </div>
+
+        <!-- 測試面板 -->
+        <div id="testPanel" class="panel">
+            <h2>🧪 功能測試</h2>
+            <button onclick="testShowPanel('stats')">測試切換到統計面板</button>
+            <button onclick="testShowPanel('debug')">測試切換到Debug面板</button>
+            <button onclick="testDataManager()">測試 DataManager</button>
+            <button onclick="window.location.reload()">重新載入頁面</button>
+        </div>
+    </div>
+
+    <!-- 載入模組 -->
+    <script src="src/js/config.js"></script>
+    <script src="src/js/data-manager.js"></script>
+    <script src="src/js/rank-manager.js"></script>
+    <script src="src/js/ui-controller.js"></script>
+
+    <script>
+        // 簡化的面板切換函數
+        function showPanel(panelName) {
+            console.log('showPanel called with:', panelName);
+            
+            // 隱藏所有面板
+            document.querySelectorAll('.panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            
+            // 移除所有導航按鈕的active class
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 顯示指定面板
+            const targetPanel = document.getElementById(panelName + 'Panel');
+            if (targetPanel) {
+                targetPanel.classList.add('active');
+                console.log('Panel switched to:', panelName);
+            } else {
+                console.error('Panel not found:', panelName + 'Panel');
+            }
+            
+            // 設定對應導航按鈕為active
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => {
+                if (btn.onclick && btn.onclick.toString().includes(panelName)) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        function testShowPanel(panelName) {
+            console.log('Testing showPanel with:', panelName);
+            if (typeof showPanel === 'function') {
+                showPanel(panelName);
+                updateStatus('globalStatus', `✅ showPanel('${panelName}') 執行成功`, 'success');
+            } else {
+                updateStatus('globalStatus', '❌ showPanel 函數不存在', 'error');
+            }
+        }
+
+        function testUIInit() {
+            if (typeof uiController !== 'undefined' && uiController) {
+                updateStatus('globalStatus', '✅ uiController 可用', 'success');
+                try {
+                    uiController.showPanel('stats');
+                    updateStatus('globalStatus', '✅ uiController.showPanel 執行成功', 'success');
+                } catch (error) {
+                    updateStatus('globalStatus', `❌ uiController.showPanel 錯誤: ${error.message}`, 'error');
+                }
+            } else {
+                updateStatus('globalStatus', '❌ uiController 未初始化', 'error');
+            }
+        }
+
+        function testDataManager() {
+            if (typeof dataManager !== 'undefined' && dataManager) {
+                updateStatus('globalStatus', '✅ dataManager 可用', 'success');
+                updateStatus('globalStatus', `📊 對戰記錄: ${dataManager.battleData.length} 場`, 'success');
+            } else {
+                updateStatus('globalStatus', '❌ dataManager 未初始化', 'error');
+            }
+        }
+
+        function updateStatus(elementId, message, type = 'success') {
+            const element = document.getElementById(elementId);
+            if (element) {
+                const div = document.createElement('div');
+                div.className = type;
+                div.innerHTML = `${new Date().toLocaleTimeString()} - ${message}`;
+                element.appendChild(div);
+            }
+        }
+
+        function checkModules() {
+            const modules = ['CONFIG', 'CLASS_DATA', 'RANK_DATA', 'DataManager', 'RankManager', 'UIController'];
+            modules.forEach(module => {
+                if (typeof window[module] !== 'undefined') {
+                    updateStatus('moduleStatus', `✅ ${module} 已載入`, 'success');
+                } else {
+                    updateStatus('moduleStatus', `❌ ${module} 未載入`, 'error');
+                }
+            });
+        }
+
+        function checkGlobals() {
+            if (typeof dataManager !== 'undefined') {
+                updateStatus('globalStatus', '✅ dataManager 全域變數已設定', 'success');
+            } else {
+                updateStatus('globalStatus', '❌ dataManager 全域變數未設定', 'error');
+            }
+
+            if (typeof uiController !== 'undefined') {
+                updateStatus('globalStatus', '✅ uiController 全域變數已設定', 'success');
+            } else {
+                updateStatus('globalStatus', '❌ uiController 全域變數未設定', 'error');
+            }
+        }
+
+        function checkDOM() {
+            const panels = document.querySelectorAll('.panel');
+            updateStatus('domStatus', `✅ 找到 ${panels.length} 個面板`, 'success');
+            
+            const navBtns = document.querySelectorAll('.nav-btn');
+            updateStatus('domStatus', `✅ 找到 ${navBtns.length} 個導航按鈕`, 'success');
+        }
+
+        // 初始化檢查
+        document.addEventListener('DOMContentLoaded', function() {
+            updateStatus('domStatus', '✅ DOMContentLoaded 事件觸發', 'success');
+            
+            setTimeout(() => {
+                checkModules();
+                checkGlobals();
+                checkDOM();
+            }, 500);
+        });
+
+        // 檢查是否在10秒內完成初始化
+        setTimeout(() => {
+            if (typeof uiController === 'undefined') {
+                updateStatus('globalStatus', '⚠️ 10秒後仍未完成初始化', 'warning');
+            } else {
+                updateStatus('globalStatus', '✅ 應用程式初始化完成', 'success');
+            }
+        }, 10000);
+    </script>
+</body>
+</html>

@@ -1,5 +1,34 @@
 # Shadowverse: Worlds Beyond Tracker - 變更日誌
 
+## 版本 1.5.0 (2025-07-02) - 緊急修復版
+
+### 🚨 重要修復
+- **修正初始化錯誤**:
+  - 修復 `RankManager.autoAdjustRank is not a function` 錯誤
+  - 修復 `RankManager.analyzeRankStatus is not a function` 錯誤
+  - 移除重複且錯誤的方法定義
+
+### 🔧 程式碼重構
+- **概念統一**: 完成分組(Group)與階級(Rank)概念分離
+  - 修正所有 `currentRank` 屬性為 `currentGroup`
+  - 統一方法名稱：`autoAdjustRank` → `autoAdjustGroup`
+  - 統一方法名稱：`analyzeRankStatus` → `analyzeGroupStatus`
+- **代碼清理**: 移除重複的 `updateStats` 和 `updateRankCalculator` 方法
+- **參數修正**: 修正 `generatePredictions` 方法參數名稱
+
+### 📁 檔案變更
+- `src/js/ui-controller.js` - 移除重複方法，修正方法調用
+- `src/js/data-manager.js` - 修正分組屬性引用
+- `src/js/rank-manager.js` - 修正方法參數名稱
+- `assets/data/sample_data.json` - 更新配置屬性
+- `index_bundle.html` - 重新建置同步更新
+
+### ✅ 測試驗證
+- 應用程式現在可正常初始化
+- 所有基本功能正常運作
+- 分組自動調整功能正常
+- 統計分析功能正常
+
 ## 版本 1.4.5 (2025-01-20) - UI優化版
 
 ### 🎯 用戶體驗改進

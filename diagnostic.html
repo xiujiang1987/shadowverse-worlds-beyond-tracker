@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>功能測試 - Shadowverse Tracker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1a1a2e;
+            color: white;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: rgba(255,255,255,0.1);
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #1976d2;
+        }
+        .success { color: #4caf50; }
+        .error { color: #f44336; }
+        .warning { color: #ff9800; }
+        .log {
+            background: #000;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 Shadowverse Tracker 功能診斷</h1>
+    
+    <div class="test-section">
+        <h2>基本功能測試</h2>
+        <button onclick="testBasicClick()">測試基本點擊</button>
+        <button onclick="testAlert()">測試 Alert</button>
+        <button onclick="testConsoleLog()">測試 Console.log</button>
+        <div id="basicResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>JavaScript 模組測試</h2>
+        <button onclick="testModuleLoading()">測試模組載入</button>
+        <button onclick="testConfigLoad()">測試 CONFIG</button>
+        <button onclick="testDataManager()">測試 DataManager</button>
+        <div id="moduleResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>DOM 操作測試</h2>
+        <button onclick="testDOMManipulation()">測試 DOM 操作</button>
+        <button onclick="testEventBinding()">測試事件綁定</button>
+        <div id="domResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>主應用測試</h2>
+        <button onclick="window.open('index.html', '_blank')">開啟主應用（新視窗）</button>
+        <button onclick="window.open('debug.html', '_blank')">開啟調試頁面</button>
+        <button onclick="window.location.href='index.html'">切換到主應用</button>
+    </div>
+
+    <div class="test-section">
+        <h2>控制台日誌</h2>
+        <div id="consoleLog" class="log"></div>
+        <button onclick="clearLog()">清除日誌</button>
+    </div>
+
+    <!-- 載入主應用的模組來測試 -->
+    <script src="src/js/config.js"></script>
+    <script src="src/js/data-manager.js"></script>
+    <script src="src/js/rank-manager.js"></script>
+    <script src="src/js/ui-controller.js"></script>
+
+    <script>
+        let logContainer = document.getElementById('consoleLog');
+        
+        // 攔截 console.log
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            logToPage('LOG: ' + args.join(' '));
+        };
+
+        const originalError = console.error;
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            logToPage('ERROR: ' + args.join(' '), 'error');
+        };
+
+        function logToPage(message, type = 'success') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = new Date().toLocaleTimeString() + ' - ' + message;
+            logContainer.appendChild(div);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function updateResult(sectionId, message, type = 'success') {
+            const element = document.getElementById(sectionId);
+            const div = document.createElement('div');
+            div.className = type;
+            div.innerHTML = message;
+            element.appendChild(div);
+        }
+
+        function clearLog() {
+            logContainer.innerHTML = '';
+        }
+
+        // 測試函數
+        function testBasicClick() {
+            updateResult('basicResult', '✅ 基本點擊功能正常！', 'success');
+            console.log('基本點擊測試成功');
+        }
+
+        function testAlert() {
+            alert('Alert 功能正常！');
+            updateResult('basicResult', '✅ Alert 功能正常！', 'success');
+        }
+
+        function testConsoleLog() {
+            console.log('這是一個測試日誌訊息');
+            updateResult('basicResult', '✅ Console.log 功能正常！', 'success');
+        }
+
+        function testModuleLoading() {
+            try {
+                // 測試 CONFIG
+                if (typeof CONFIG !== 'undefined') {
+                    updateResult('moduleResult', '✅ CONFIG 已載入', 'success');
+                } else {
+                    updateResult('moduleResult', '❌ CONFIG 未載入', 'error');
+                }
+
+                // 測試類別
+                if (typeof DataManager !== 'undefined') {
+                    updateResult('moduleResult', '✅ DataManager 類別已載入', 'success');
+                } else {
+                    updateResult('moduleResult', '❌ DataManager 類別未載入', 'error');
+                }
+
+                if (typeof UIController !== 'undefined') {
+                    updateResult('moduleResult', '✅ UIController 類別已載入', 'success');
+                } else {
+                    updateResult('moduleResult', '❌ UIController 類別未載入', 'error');
+                }
+
+            } catch (error) {
+                updateResult('moduleResult', '❌ 模組載入錯誤: ' + error.message, 'error');
+                console.error('模組載入錯誤:', error);
+            }
+        }
+
+        function testConfigLoad() {
+            try {
+                if (typeof CONFIG !== 'undefined') {
+                    updateResult('moduleResult', '✅ CONFIG.STORAGE_KEYS: ' + JSON.stringify(CONFIG.STORAGE_KEYS), 'success');
+                    updateResult('moduleResult', '✅ CONFIG.DEFAULTS: ' + JSON.stringify(CONFIG.DEFAULTS), 'success');
+                } else {
+                    updateResult('moduleResult', '❌ CONFIG 無法存取', 'error');
+                }
+            } catch (error) {
+                updateResult('moduleResult', '❌ CONFIG 測試錯誤: ' + error.message, 'error');
+            }
+        }
+
+        function testDataManager() {
+            try {
+                const dm = new DataManager();
+                updateResult('moduleResult', '✅ DataManager 建立成功', 'success');
+                updateResult('moduleResult', '📊 玩家資料: ' + dm.playerData.name, 'success');
+                updateResult('moduleResult', '🏆 對戰記錄: ' + dm.battleData.length + ' 場', 'success');
+            } catch (error) {
+                updateResult('moduleResult', '❌ DataManager 建立失敗: ' + error.message, 'error');
+                console.error('DataManager 錯誤:', error);
+            }
+        }
+
+        function testDOMManipulation() {
+            try {
+                // 創建測試元素
+                const testDiv = document.createElement('div');
+                testDiv.id = 'testElement';
+                testDiv.textContent = '這是一個測試元素';
+                testDiv.style.background = '#4caf50';
+                testDiv.style.padding = '10px';
+                testDiv.style.margin = '10px 0';
+                testDiv.style.borderRadius = '5px';
+                
+                document.getElementById('domResult').appendChild(testDiv);
+                updateResult('domResult', '✅ DOM 操作成功', 'success');
+                
+                // 2秒後移除
+                setTimeout(() => {
+                    if (document.getElementById('testElement')) {
+                        document.getElementById('testElement').remove();
+                        updateResult('domResult', '✅ DOM 元素移除成功', 'success');
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                updateResult('domResult', '❌ DOM 操作失敗: ' + error.message, 'error');
+            }
+        }
+
+        function testEventBinding() {
+            try {
+                const testBtn = document.createElement('button');
+                testBtn.textContent = '點我測試事件';
+                testBtn.onclick = function() {
+                    this.textContent = '事件觸發成功！';
+                    this.style.background = '#4caf50';
+                    updateResult('domResult', '✅ 事件綁定成功', 'success');
+                };
+                document.getElementById('domResult').appendChild(testBtn);
+                updateResult('domResult', '✅ 事件綁定測試按鈕已建立', 'warning');
+            } catch (error) {
+                updateResult('domResult', '❌ 事件綁定失敗: ' + error.message, 'error');
+            }
+        }
+
+        // 頁面載入完成後自動執行基本測試
+        document.addEventListener('DOMContentLoaded', function() {
+            logToPage('頁面載入完成，開始自動診斷...');
+            
+            setTimeout(() => {
+                testBasicClick();
+                testModuleLoading();
+                testConfigLoad();
+            }, 500);
+        });
+
+        // 檢查全域變數
+        window.addEventListener('load', function() {
+            logToPage('檢查全域變數...');
+            
+            if (typeof dataManager !== 'undefined') {
+                logToPage('dataManager 全域變數存在');
+            } else {
+                logToPage('dataManager 全域變數不存在', 'error');
+            }
+            
+            if (typeof uiController !== 'undefined') {
+                logToPage('uiController 全域變數存在');
+            } else {
+                logToPage('uiController 全域變數不存在', 'error');
+            }
+        });
+    </script>
+</body>
+</html>

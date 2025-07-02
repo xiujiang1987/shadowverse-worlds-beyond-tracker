@@ -67,20 +67,20 @@ class UIController {
     updateStats() {
         const stats = dataManager.getStatistics();
         
-        // 檢查階級自動調整
-        const oldRank = dataManager.currentRank;
-        const newRank = RankManager.autoAdjustRank(
+        // 檢查分組自動調整
+        const oldGroup = dataManager.currentGroup;
+        const newGroup = RankManager.autoAdjustGroup(
             stats.winRate, 
             stats.totalGames, 
-            dataManager.currentRank, 
+            dataManager.currentGroup, 
             stats.lastMatchResult
         );
 
-        if (newRank !== dataManager.currentRank) {
-            console.log(`分組自動調整：${dataManager.currentRank} → ${newRank} (勝率: ${stats.winRate}%, 最後一場: ${stats.lastMatchResult})`);
-            dataManager.currentRank = newRank;
-            dataManager.saveCurrentRank();
-            RankManager.showRankChangeNotification(oldRank, newRank, stats.winRate);
+        if (newGroup !== dataManager.currentGroup) {
+            console.log(`分組自動調整：${dataManager.currentGroup} → ${newGroup} (勝率: ${stats.winRate}%, 最後一場: ${stats.lastMatchResult})`);
+            dataManager.currentGroup = newGroup;
+            dataManager.saveCurrentGroup();
+            RankManager.showGroupChangeNotification(oldGroup, newGroup, stats.winRate);
         }
 
         // 更新顯示元素
@@ -89,7 +89,7 @@ class UIController {
 
         this.updateElement('currentBP', stats.currentBP.toLocaleString());
         this.updateElement('startingBP', dataManager.startingBP.toLocaleString());
-        this.updateElement('currentRank', `${RANK_DATA[dataManager.currentRank].icon} ${RANK_DATA[dataManager.currentRank].name}`);
+        this.updateElement('currentRank', `${GROUP_DATA[dataManager.currentGroup].icon} ${GROUP_DATA[dataManager.currentGroup].name}`);
         this.updateElement('currentRankLevel', currentRankLevel);
         this.updateElement('totalGames', stats.totalGames);
         this.updateElement('winRate', stats.winRate + '%');
@@ -112,8 +112,8 @@ class UIController {
         
         if (!rankStatusText || !rankProgress || !rankAnalysis || !rankPrediction) return;
 
-        const rank = RANK_DATA[dataManager.currentRank];
-        const { status, statusClass, analysis } = RankManager.analyzeRankStatus(winRate, totalGames, dataManager.currentRank);
+        const rank = RANK_DATA[dataManager.currentGroup];
+        const { status, statusClass, analysis } = RankManager.analyzeGroupStatus(winRate, totalGames, dataManager.currentGroup);
         
         // 設定進度條寬度
         rankProgress.style.width = winRate + '%';
@@ -126,7 +126,7 @@ class UIController {
         // 更新預測
         const prediction = RankManager.generatePredictions(
             wins, totalGames, winRate, 
-            rank.maintain, rank.danger, dataManager.currentRank
+            rank.maintain, rank.danger, dataManager.currentGroup
         );
         rankPrediction.innerHTML = prediction;
     }
@@ -597,74 +597,6 @@ class UIController {
                 modal.remove();
             }
         });
-    }
-
-    // 更新統計資訊（擴展原有方法）
-    updateStats() {
-        const stats = dataManager.getStatistics();
-        
-        // 檢查階級自動調整
-        const oldRank = dataManager.currentRank;
-        const newRank = RankManager.autoAdjustRank(
-            stats.winRate, 
-            stats.totalGames, 
-            dataManager.currentRank, 
-            stats.lastMatchResult
-        );
-
-        if (newRank !== dataManager.currentRank) {
-            console.log(`分組自動調整：${dataManager.currentRank} → ${newRank} (勝率: ${stats.winRate}%, 最後一場: ${stats.lastMatchResult})`);
-            dataManager.currentRank = newRank;
-            dataManager.saveCurrentRank();
-            RankManager.showRankChangeNotification(oldRank, newRank, stats.winRate);
-        }
-
-        // 更新顯示元素
-        const currentRankLevel = RankManager.calculateRank(stats.currentBP);
-        const streakText = stats.streak + (stats.streakType === '勝' ? '連勝' : '連敗');
-
-        this.updateElement('currentBP', stats.currentBP.toLocaleString());
-        this.updateElement('startingBP', dataManager.startingBP.toLocaleString());
-        this.updateElement('currentRank', `${RANK_DATA[dataManager.currentRank].icon} ${RANK_DATA[dataManager.currentRank].name}`);
-        this.updateElement('currentRankLevel', currentRankLevel);
-        this.updateElement('totalGames', stats.totalGames);
-        this.updateElement('winRate', stats.winRate + '%');
-        
-        // 更新先手後手勝率
-        this.updateElement('firstWinRate', stats.firstTurnGames > 0 ? `${stats.firstWinRate}%` : '--');
-        this.updateElement('secondWinRate', stats.secondTurnGames > 0 ? `${stats.secondWinRate}%` : '--');
-        
-        this.updateElement('streak', streakText);
-
-        this.updateRankCalculator(stats.totalGames, stats.wins, stats.winRate);
-    }
-
-    // 更新階級計算器
-    updateRankCalculator(totalGames, wins, winRate) {
-        const rankStatusText = document.getElementById('rankStatusText');
-        const rankProgress = document.getElementById('rankProgress');
-        const rankAnalysis = document.getElementById('rankAnalysis');
-        const rankPrediction = document.getElementById('rankPrediction');
-        
-        if (!rankStatusText || !rankProgress || !rankAnalysis || !rankPrediction) return;
-
-        const rank = RANK_DATA[dataManager.currentRank];
-        const { status, statusClass, analysis } = RankManager.analyzeRankStatus(winRate, totalGames, dataManager.currentRank);
-        
-        // 設定進度條寬度
-        rankProgress.style.width = winRate + '%';
-        
-        // 更新狀態顯示
-        rankStatusText.textContent = status;
-        rankStatusText.className = statusClass;
-        rankAnalysis.textContent = analysis;
-        
-        // 更新預測
-        const prediction = RankManager.generatePredictions(
-            wins, totalGames, winRate, 
-            rank.maintain, rank.danger, dataManager.currentRank
-        );
-        rankPrediction.innerHTML = prediction;
     }
 
     // 編輯起始BP
@@ -1417,98 +1349,12 @@ class UIController {
     }
 }
 
-// 全域UI控制器實例
-const uiController = new UIController();
-
-// 全域函數（保持向後兼容）
-function showPanel(panelName) {
-    uiController.showPanel(panelName);
-}
-
-function addBattle() {
-    uiController.addBattle();
-}
-
-function editStartingBP() {
-    uiController.editStartingBP();
-}
-
-function editCurrentRank() {
-    uiController.editCurrentRank();
-}
-
-function editPlayerName() {
-    uiController.editPlayerName();
-}
-
-function editGameId() {
-    uiController.editGameId();
-}
-
-function editMainClass() {
-    uiController.editMainClass();
-}
-
-function editTargetRank() {
-    uiController.editTargetRank();
-}
-
-function clearAllData() {
-    uiController.clearAllData();
-}
-
-function exportData() {
-    uiController.exportData();
-}
-
-function importFromFile(event) {
-    uiController.importFromFile(event);
-}
-
-// 玩家資料管理全域函數
-function savePlayerProfile() {
-    uiController.savePlayerProfile();
-}
-
-function resetPlayerProfile() {
-    uiController.resetPlayerProfile();
-}
-
-function exportPlayerProfile() {
-    uiController.exportPlayerProfile();
-}
-
-// 矩陣管理全域函數
-function showMatrixType(type) {
-    uiController.showMatrixType(type);
-}
-
-// 分組變動管理全域函數
-function toggleRankChange(battleIndex, battleId) {
-    uiController.toggleRankChange(battleIndex, battleId);
-}
-
-function confirmRankChange(battleIndex, battleId) {
-    uiController.confirmRankChange(battleIndex, battleId);
-}
-
-function exportRankChangeAnalysis() {
-    uiController.exportRankChangeAnalysis();
-}
-
-// 對戰記錄編輯全域函數
-function editBattle(battleId) {
-    uiController.editBattle(battleId);
-}
-
-function deleteBattle(battleId) {
-    uiController.deleteBattle(battleId);
-}
-
 function saveEditBattle(battleId) {
     console.log('Global saveEditBattle called with battleId:', battleId);
     try {
-        uiController.saveEditBattle(battleId);
+        if (uiController) {
+            uiController.saveEditBattle(battleId);
+        }
     } catch (error) {
         console.error('Error in global saveEditBattle:', error);
         alert('保存失敗：' + error.message);

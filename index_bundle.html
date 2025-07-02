@@ -1177,19 +1177,23 @@ body {
 // 此文件包含所有應用程式的配置常數和基礎數據
 
 const CONFIG = {
+    // 版本資訊
+    VERSION: 'v1.5.0',
+    BUILD_DATE: '2025-07-02',
+    
     // localStorage keys
     STORAGE_KEYS: {
         PLAYER: 'shadowverseWorldsBeyondPlayer',
         BATTLES: 'shadowverseWorldsBeyondBattles',
         STARTING_BP: 'shadowverseWorldsBeyondStartingBP',
-        CURRENT_RANK: 'shadowverseWorldsBeyondCurrentRank',
+        CURRENT_GROUP: 'shadowverseWorldsBeyondCurrentGroup', // 分組(Group): 綠寶石、黃寶石等
         RANK_CHANGES: 'shadowverseWorldsBeyondRankChanges'
     },
     
     // 默認值
     DEFAULTS: {
         STARTING_BP: 43945,
-        CURRENT_RANK: '鑽石',
+        CURRENT_GROUP: '鑽石', // 分組，非階級
         WIN_BP: 320,
         LOSE_BP: 30
     },
@@ -1201,8 +1205,8 @@ const CONFIG = {
     }
 };
 
-// 階級數據
-const RANK_DATA = {
+// 分組數據（Group Data）- 遊戲內的寶石系統
+const GROUP_DATA = {
     '綠寶石': {
         icon: '🟢',
         name: '綠寶石',
@@ -1249,6 +1253,9 @@ const RANK_DATA = {
         description: '• 最高分組<br>• 維持條件：勝率60%以上<br>• 低於50%有掉級風險，倍率x2.0'
     }
 };
+
+// 為了向後相容，保留舊名稱
+const RANK_DATA = GROUP_DATA;
 
 // 職業數據
 const CLASS_DATA = {
@@ -1323,7 +1330,7 @@ class DataManager {
         this.playerData = this.loadPlayerData();
         this.battleData = this.loadBattleData();
         this.startingBP = this.loadStartingBP();
-        this.currentRank = this.loadCurrentRank();
+        this.currentGroup = this.loadCurrentGroup();
         this.rankChangeHistory = this.loadRankChangeHistory(); // 新增分組變動歷史
     }
 
@@ -1363,16 +1370,16 @@ class DataManager {
         localStorage.setItem(CONFIG.STORAGE_KEYS.STARTING_BP, this.startingBP);
     }
 
-    // 載入當前階級
-    loadCurrentRank() {
-        const stored = localStorage.getItem(CONFIG.STORAGE_KEYS.CURRENT_RANK);
-        return stored || CONFIG.DEFAULTS.CURRENT_RANK;
+    // 載入當前分組
+    loadCurrentGroup() {
+        const stored = localStorage.getItem(CONFIG.STORAGE_KEYS.CURRENT_GROUP);
+        return stored || CONFIG.DEFAULTS.CURRENT_GROUP;
     }
 
-    // 儲存當前階級
-    saveCurrentRank(rank = null) {
-        if (rank) this.currentRank = rank;
-        localStorage.setItem(CONFIG.STORAGE_KEYS.CURRENT_RANK, this.currentRank);
+    // 儲存當前分組
+    saveCurrentGroup(group = null) {
+        if (group) this.currentGroup = group;
+        localStorage.setItem(CONFIG.STORAGE_KEYS.CURRENT_GROUP, this.currentGroup);
     }
 
     // 載入分組變動歷史
@@ -1589,7 +1596,7 @@ class DataManager {
         exportText += `階級：${currentRankLevel}\n`;
         exportText += `起始BP：${this.startingBP}\n`;
         exportText += `目前BP：${stats.currentBP}\n`;
-        exportText += `分組：${RANK_DATA[this.currentRank].name}\n`;
+        exportText += `分組：${RANK_DATA[this.currentGroup].name}\n`;
         exportText += `總勝率：${stats.winRate}% (${stats.wins}勝/${stats.totalGames - stats.wins}敗)\n`;
         exportText += `先手勝率：${stats.firstWinRate}% (${stats.firstTurnWins}勝/${stats.firstTurnGames - stats.firstTurnWins}敗，共${stats.firstTurnGames}場)\n`;
         exportText += `後手勝率：${stats.secondWinRate}% (${stats.secondTurnWins}勝/${stats.secondTurnGames - stats.secondTurnWins}敗，共${stats.secondTurnGames}場)\n\n`;
@@ -1689,8 +1696,8 @@ class DataManager {
                     
                     // 如果檢測到分組，自動調整
                     if (detectedGroup && RANK_DATA[detectedGroup]) {
-                        this.currentRank = detectedGroup;
-                        this.saveCurrentRank();
+                        this.currentGroup = detectedGroup;
+                        this.saveCurrentGroup();
                     }
                     
                     this.saveStartingBP();
@@ -1777,7 +1784,7 @@ class DataManager {
         
         let exportText = `闇影詩章:凌越世界 分組變動分析報告\n`;
         exportText += `生成日期：${new Date().toISOString().split('T')[0]}\n`;
-        exportText += `目前狀態：${this.currentRank} | BP: ${stats.currentBP} | 勝率: ${stats.winRate}%\n\n`;
+        exportText += `目前狀態：${this.currentGroup} | BP: ${stats.currentBP} | 勝率: ${stats.winRate}%\n\n`;
         
         exportText += `=== 分組變動統計 ===\n`;
         exportText += `總變動次數：${analysis.totalChanges}\n`;
@@ -1818,16 +1825,13 @@ class DataManager {
     }
 }
 
-// 全域數據管理實例
-const dataManager = new DataManager();
-
 
         // === src/js/rank-manager.js ===
         // Shadowverse: Worlds Beyond Tracker - 階級管理模組
 // 負責階級計算、升降級邏輯和相關功能
 
 class RankManager {
-    // 計算BP對應的階級
+    // 計算BP對應的階級（Rank）
     static calculateRank(bp) {
         if (bp >= 60000) return 'Master';
         if (bp >= 50000) return 'A3';
@@ -1845,74 +1849,84 @@ class RankManager {
         return 'Beginner';
     }
 
-    // 自動階級調整邏輯
+    // 獲取當前分組（Group） - 基於用戶設定，非BP計算
+    static getCurrentGroup() {
+        return localStorage.getItem(CONFIG.STORAGE_KEYS.CURRENT_GROUP) || CONFIG.DEFAULTS.CURRENT_GROUP;
+    }
+
+    // 設定當前分組
+    static setCurrentGroup(group) {
+        localStorage.setItem(CONFIG.STORAGE_KEYS.CURRENT_GROUP, group);
+    }
+
+    // 自動分組調整邏輯（基於分組Group，非階級Rank）
     // 注意：此功能目前為實驗性質，分組升降規則尚未完善
     // 建議使用手動分組標記功能以獲得更準確的分組追蹤
-    static autoAdjustRank(winRate, totalGames, currentRank, lastMatchResult = null) {
+    static autoAdjustGroup(winRate, totalGames, currentGroup, lastMatchResult = null) {
         // 需要至少15場對戰才開始分組調整
         if (totalGames < CONFIG.GAME_RULES.MIN_GAMES_FOR_RANK_ADJUSTMENT) {
-            return currentRank;
+            return currentGroup;
         }
         
         // TODO: 需要更多實際遊戲數據來完善升降級規則
         // 目前的邏輯僅為基礎估算，可能與實際遊戲規則有差異
         
-        const rankOrder = ['綠寶石', '黃寶石', '紅寶石', '藍寶石', '鑽石'];
-        const currentIndex = rankOrder.indexOf(currentRank);
-        const currentRankData = RANK_DATA[currentRank];
+        const groupOrder = ['綠寶石', '黃寶石', '紅寶石', '藍寶石', '鑽石'];
+        const currentIndex = groupOrder.indexOf(currentGroup);
+        const currentGroupData = RANK_DATA[currentGroup];
         
         // 嚴格掉級條件：勝率遠低於警戒線
-        if (winRate < currentRankData.danger - 5 && totalGames >= CONFIG.GAME_RULES.MIN_GAMES_FOR_RANK_DANGER) {
+        if (winRate < currentGroupData.danger - 5 && totalGames >= CONFIG.GAME_RULES.MIN_GAMES_FOR_RANK_DANGER) {
             if (currentIndex > 0) {
-                return rankOrder[currentIndex - 1];
+                return groupOrder[currentIndex - 1];
             }
         }
         
         // 臨界掉級條件
         if (totalGames >= CONFIG.GAME_RULES.MIN_GAMES_FOR_RANK_DANGER && currentIndex > 0) {
-            if (winRate < currentRankData.maintain) {
-                const isDangerZone = winRate <= Math.max(currentRankData.danger + 5, 50);
-                const isBlueRank50 = (currentRank === '藍寶石' && winRate === 50);
+            if (winRate < currentGroupData.maintain) {
+                const isDangerZone = winRate <= Math.max(currentGroupData.danger + 5, 50);
+                const isBlueGroup50 = (currentGroup === '藍寶石' && winRate === 50);
                 
-                if ((isDangerZone || isBlueRank50) && lastMatchResult === '敗') {
-                    return rankOrder[currentIndex - 1];
+                if ((isDangerZone || isBlueGroup50) && lastMatchResult === '敗') {
+                    return groupOrder[currentIndex - 1];
                 }
             }
         }
         
         // 升級條件
-        if (winRate >= currentRankData.maintain + 10 && 
-            currentIndex < rankOrder.length - 1 && 
+        if (winRate >= currentGroupData.maintain + 10 && 
+            currentIndex < groupOrder.length - 1 && 
             totalGames >= CONFIG.GAME_RULES.MIN_GAMES_FOR_RANK_ADJUSTMENT) {
-            const nextRankData = RANK_DATA[rankOrder[currentIndex + 1]];
-            if (winRate >= nextRankData.maintain) {
-                return rankOrder[currentIndex + 1];
+            const nextGroupData = RANK_DATA[groupOrder[currentIndex + 1]];
+            if (winRate >= nextGroupData.maintain) {
+                return groupOrder[currentIndex + 1];
             }
         }
         
-        return currentRank;
+        return currentGroup;
     }
 
-    // 顯示階級變更通知
-    static showRankChangeNotification(oldRank, newRank, winRate) {
-        const oldRankData = RANK_DATA[oldRank];
-        const newRankData = RANK_DATA[newRank];
+    // 顯示分組變更通知
+    static showGroupChangeNotification(oldGroup, newGroup, winRate) {
+        const oldGroupData = RANK_DATA[oldGroup];
+        const newGroupData = RANK_DATA[newGroup];
         
-        const rankOrder = ['綠寶石', '黃寶石', '紅寶石', '藍寶石', '鑽石'];
-        const isUpgrade = rankOrder.indexOf(newRank) > rankOrder.indexOf(oldRank);
+        const groupOrder = ['綠寶石', '黃寶石', '紅寶石', '藍寶石', '鑽石'];
+        const isUpgrade = groupOrder.indexOf(newGroup) > groupOrder.indexOf(oldGroup);
         
         const message = isUpgrade 
-            ? `🎉 恭喜升級！\n${oldRankData.icon} ${oldRankData.name} → ${newRankData.icon} ${newRankData.name}\n\n目前勝率：${winRate}%\n請繼續保持優秀表現！`
-            : `📉 分組調整通知\n${oldRankData.icon} ${oldRankData.name} → ${newRankData.icon} ${newRankData.name}\n\n目前勝率：${winRate}%\n建議提升勝率以重回更高分組！`;
+            ? `🎉 恭喜升級！\n${oldGroupData.icon} ${oldGroupData.name} → ${newGroupData.icon} ${newGroupData.name}\n\n目前勝率：${winRate}%\n請繼續保持優秀表現！`
+            : `📉 分組調整通知\n${oldGroupData.icon} ${oldGroupData.name} → ${newGroupData.icon} ${newGroupData.name}\n\n目前勝率：${winRate}%\n建議提升勝率以重回更高分組！`;
         
         alert(message);
     }
 
-    // 分析階級狀態
-    static analyzeRankStatus(winRate, totalGames, currentRank) {
-        const rank = RANK_DATA[currentRank];
-        const maintainThreshold = rank.maintain;
-        const dangerThreshold = rank.danger;
+    // 分析分組狀態
+    static analyzeGroupStatus(winRate, totalGames, currentGroup) {
+        const group = RANK_DATA[currentGroup];
+        const maintainThreshold = group.maintain;
+        const dangerThreshold = group.danger;
         
         // 如果場次太少，給予提示
         if (totalGames < CONFIG.GAME_RULES.MIN_GAMES_FOR_RANK_ADJUSTMENT) {
@@ -1928,35 +1942,35 @@ class RankManager {
         if (winRate >= maintainThreshold + 10) {
             status = '✅ 分組非常穩定';
             statusClass = 'rank-safe';
-            analysis = `您的${winRate}%勝率在${rank.name}分組中表現優異，完全不用擔心掉級問題。`;
+            analysis = `您的${winRate}%勝率在${group.name}分組中表現優異，完全不用擔心掉級問題。`;
             
             // 檢查是否可以升級
-            const rankOrder = ['綠寶石', '黃寶石', '紅寶石', '藍寶石', '鑽石'];
-            const currentIndex = rankOrder.indexOf(currentRank);
-            if (currentIndex < rankOrder.length - 1) {
-                const nextRank = rankOrder[currentIndex + 1];
-                const nextRankData = RANK_DATA[nextRank];
-                if (winRate >= nextRankData.maintain) {
-                    analysis += ` 您的勝率已達到${nextRankData.name}分組標準，系統可能會自動升級。`;
+            const groupOrder = ['綠寶石', '黃寶石', '紅寶石', '藍寶石', '鑽石'];
+            const currentIndex = groupOrder.indexOf(currentGroup);
+            if (currentIndex < groupOrder.length - 1) {
+                const nextGroup = groupOrder[currentIndex + 1];
+                const nextGroupData = RANK_DATA[nextGroup];
+                if (winRate >= nextGroupData.maintain) {
+                    analysis += ` 您的勝率已達到${nextGroupData.name}分組標準，系統可能會自動升級。`;
                 }
             }
         } else if (winRate >= maintainThreshold) {
             status = '✅ 分組安全';
             statusClass = 'rank-safe';
-            analysis = `您的${winRate}%勝率在${rank.name}分組中表現良好，建議繼續保持。`;
+            analysis = `您的${winRate}%勝率在${group.name}分組中表現良好，建議繼續保持。`;
         } else if (winRate >= maintainThreshold - 5) {
             status = '⚠️ 需要注意';
             statusClass = 'rank-warning';
-            analysis = `您的${winRate}%勝率略低於${rank.name}分組建議標準(${maintainThreshold}%)，建議提升勝率。`;
+            analysis = `您的${winRate}%勝率略低於${group.name}分組建議標準(${maintainThreshold}%)，建議提升勝率。`;
         } else if (winRate >= dangerThreshold) {
             status = '🚨 掉級風險';
             statusClass = 'rank-danger';
             
             if (totalGames >= CONFIG.GAME_RULES.MIN_GAMES_FOR_RANK_DANGER) {
                 const isDangerZone = winRate <= Math.max(dangerThreshold + 5, 50);
-                const isBlueRank50 = (currentRank === '藍寶石' && winRate === 50);
+                const isBlueGroup50 = (currentGroup === '藍寶石' && winRate === 50);
                 
-                if (isDangerZone || isBlueRank50) {
+                if (isDangerZone || isBlueGroup50) {
                     analysis = `您的${winRate}%勝率已在臨界區域，下一場敗戰可能觸發掉級機制。`;
                 } else {
                     analysis = `您的${winRate}%勝率接近掉級警戒線(${dangerThreshold}%)，建議盡快提升勝率。`;
@@ -1978,7 +1992,7 @@ class RankManager {
     }
 
     // 生成勝率預測
-    static generatePredictions(wins, totalGames, winRate, maintainThreshold, dangerThreshold, currentRank) {
+    static generatePredictions(wins, totalGames, winRate, maintainThreshold, dangerThreshold, currentGroup) {
         const lose5 = Math.round(((wins) / (totalGames + 5)) * 100);
         const win5 = Math.round(((wins + 5) / (totalGames + 5)) * 100);
         
@@ -1987,9 +2001,9 @@ class RankManager {
         // 特別提醒臨界掉級風險
         if (totalGames >= CONFIG.GAME_RULES.MIN_GAMES_FOR_RANK_DANGER && winRate < maintainThreshold) {
             const isDangerZone = winRate <= Math.max(dangerThreshold + 5, 50);
-            const isBlueRank50 = (currentRank === '藍寶石' && winRate === 50);
+            const isBlueGroup50 = (currentGroup === '藍寶石' && winRate === 50);
             
-            if (isDangerZone || isBlueRank50) {
+            if (isDangerZone || isBlueGroup50) {
                 prediction += `• 🚨 <strong>掉級風險警告</strong>：您的勝率已在臨界區域，下一場敗戰可能觸發掉級！<br>`;
             }
         }
@@ -2085,20 +2099,20 @@ class UIController {
     updateStats() {
         const stats = dataManager.getStatistics();
         
-        // 檢查階級自動調整
-        const oldRank = dataManager.currentRank;
-        const newRank = RankManager.autoAdjustRank(
+        // 檢查分組自動調整
+        const oldGroup = dataManager.currentGroup;
+        const newGroup = RankManager.autoAdjustGroup(
             stats.winRate, 
             stats.totalGames, 
-            dataManager.currentRank, 
+            dataManager.currentGroup, 
             stats.lastMatchResult
         );
 
-        if (newRank !== dataManager.currentRank) {
-            console.log(`分組自動調整：${dataManager.currentRank} → ${newRank} (勝率: ${stats.winRate}%, 最後一場: ${stats.lastMatchResult})`);
-            dataManager.currentRank = newRank;
-            dataManager.saveCurrentRank();
-            RankManager.showRankChangeNotification(oldRank, newRank, stats.winRate);
+        if (newGroup !== dataManager.currentGroup) {
+            console.log(`分組自動調整：${dataManager.currentGroup} → ${newGroup} (勝率: ${stats.winRate}%, 最後一場: ${stats.lastMatchResult})`);
+            dataManager.currentGroup = newGroup;
+            dataManager.saveCurrentGroup();
+            RankManager.showGroupChangeNotification(oldGroup, newGroup, stats.winRate);
         }
 
         // 更新顯示元素
@@ -2107,7 +2121,7 @@ class UIController {
 
         this.updateElement('currentBP', stats.currentBP.toLocaleString());
         this.updateElement('startingBP', dataManager.startingBP.toLocaleString());
-        this.updateElement('currentRank', `${RANK_DATA[dataManager.currentRank].icon} ${RANK_DATA[dataManager.currentRank].name}`);
+        this.updateElement('currentRank', `${GROUP_DATA[dataManager.currentGroup].icon} ${GROUP_DATA[dataManager.currentGroup].name}`);
         this.updateElement('currentRankLevel', currentRankLevel);
         this.updateElement('totalGames', stats.totalGames);
         this.updateElement('winRate', stats.winRate + '%');
@@ -2130,8 +2144,8 @@ class UIController {
         
         if (!rankStatusText || !rankProgress || !rankAnalysis || !rankPrediction) return;
 
-        const rank = RANK_DATA[dataManager.currentRank];
-        const { status, statusClass, analysis } = RankManager.analyzeRankStatus(winRate, totalGames, dataManager.currentRank);
+        const rank = RANK_DATA[dataManager.currentGroup];
+        const { status, statusClass, analysis } = RankManager.analyzeGroupStatus(winRate, totalGames, dataManager.currentGroup);
         
         // 設定進度條寬度
         rankProgress.style.width = winRate + '%';
@@ -2144,7 +2158,7 @@ class UIController {
         // 更新預測
         const prediction = RankManager.generatePredictions(
             wins, totalGames, winRate, 
-            rank.maintain, rank.danger, dataManager.currentRank
+            rank.maintain, rank.danger, dataManager.currentGroup
         );
         rankPrediction.innerHTML = prediction;
     }
@@ -2615,74 +2629,6 @@ class UIController {
                 modal.remove();
             }
         });
-    }
-
-    // 更新統計資訊（擴展原有方法）
-    updateStats() {
-        const stats = dataManager.getStatistics();
-        
-        // 檢查階級自動調整
-        const oldRank = dataManager.currentRank;
-        const newRank = RankManager.autoAdjustRank(
-            stats.winRate, 
-            stats.totalGames, 
-            dataManager.currentRank, 
-            stats.lastMatchResult
-        );
-
-        if (newRank !== dataManager.currentRank) {
-            console.log(`分組自動調整：${dataManager.currentRank} → ${newRank} (勝率: ${stats.winRate}%, 最後一場: ${stats.lastMatchResult})`);
-            dataManager.currentRank = newRank;
-            dataManager.saveCurrentRank();
-            RankManager.showRankChangeNotification(oldRank, newRank, stats.winRate);
-        }
-
-        // 更新顯示元素
-        const currentRankLevel = RankManager.calculateRank(stats.currentBP);
-        const streakText = stats.streak + (stats.streakType === '勝' ? '連勝' : '連敗');
-
-        this.updateElement('currentBP', stats.currentBP.toLocaleString());
-        this.updateElement('startingBP', dataManager.startingBP.toLocaleString());
-        this.updateElement('currentRank', `${RANK_DATA[dataManager.currentRank].icon} ${RANK_DATA[dataManager.currentRank].name}`);
-        this.updateElement('currentRankLevel', currentRankLevel);
-        this.updateElement('totalGames', stats.totalGames);
-        this.updateElement('winRate', stats.winRate + '%');
-        
-        // 更新先手後手勝率
-        this.updateElement('firstWinRate', stats.firstTurnGames > 0 ? `${stats.firstWinRate}%` : '--');
-        this.updateElement('secondWinRate', stats.secondTurnGames > 0 ? `${stats.secondWinRate}%` : '--');
-        
-        this.updateElement('streak', streakText);
-
-        this.updateRankCalculator(stats.totalGames, stats.wins, stats.winRate);
-    }
-
-    // 更新階級計算器
-    updateRankCalculator(totalGames, wins, winRate) {
-        const rankStatusText = document.getElementById('rankStatusText');
-        const rankProgress = document.getElementById('rankProgress');
-        const rankAnalysis = document.getElementById('rankAnalysis');
-        const rankPrediction = document.getElementById('rankPrediction');
-        
-        if (!rankStatusText || !rankProgress || !rankAnalysis || !rankPrediction) return;
-
-        const rank = RANK_DATA[dataManager.currentRank];
-        const { status, statusClass, analysis } = RankManager.analyzeRankStatus(winRate, totalGames, dataManager.currentRank);
-        
-        // 設定進度條寬度
-        rankProgress.style.width = winRate + '%';
-        
-        // 更新狀態顯示
-        rankStatusText.textContent = status;
-        rankStatusText.className = statusClass;
-        rankAnalysis.textContent = analysis;
-        
-        // 更新預測
-        const prediction = RankManager.generatePredictions(
-            wins, totalGames, winRate, 
-            rank.maintain, rank.danger, dataManager.currentRank
-        );
-        rankPrediction.innerHTML = prediction;
     }
 
     // 編輯起始BP
@@ -3435,98 +3381,12 @@ class UIController {
     }
 }
 
-// 全域UI控制器實例
-const uiController = new UIController();
-
-// 全域函數（保持向後兼容）
-function showPanel(panelName) {
-    uiController.showPanel(panelName);
-}
-
-function addBattle() {
-    uiController.addBattle();
-}
-
-function editStartingBP() {
-    uiController.editStartingBP();
-}
-
-function editCurrentRank() {
-    uiController.editCurrentRank();
-}
-
-function editPlayerName() {
-    uiController.editPlayerName();
-}
-
-function editGameId() {
-    uiController.editGameId();
-}
-
-function editMainClass() {
-    uiController.editMainClass();
-}
-
-function editTargetRank() {
-    uiController.editTargetRank();
-}
-
-function clearAllData() {
-    uiController.clearAllData();
-}
-
-function exportData() {
-    uiController.exportData();
-}
-
-function importFromFile(event) {
-    uiController.importFromFile(event);
-}
-
-// 玩家資料管理全域函數
-function savePlayerProfile() {
-    uiController.savePlayerProfile();
-}
-
-function resetPlayerProfile() {
-    uiController.resetPlayerProfile();
-}
-
-function exportPlayerProfile() {
-    uiController.exportPlayerProfile();
-}
-
-// 矩陣管理全域函數
-function showMatrixType(type) {
-    uiController.showMatrixType(type);
-}
-
-// 分組變動管理全域函數
-function toggleRankChange(battleIndex, battleId) {
-    uiController.toggleRankChange(battleIndex, battleId);
-}
-
-function confirmRankChange(battleIndex, battleId) {
-    uiController.confirmRankChange(battleIndex, battleId);
-}
-
-function exportRankChangeAnalysis() {
-    uiController.exportRankChangeAnalysis();
-}
-
-// 對戰記錄編輯全域函數
-function editBattle(battleId) {
-    uiController.editBattle(battleId);
-}
-
-function deleteBattle(battleId) {
-    uiController.deleteBattle(battleId);
-}
-
 function saveEditBattle(battleId) {
     console.log('Global saveEditBattle called with battleId:', battleId);
     try {
-        uiController.saveEditBattle(battleId);
+        if (uiController) {
+            uiController.saveEditBattle(battleId);
+        }
     } catch (error) {
         console.error('Error in global saveEditBattle:', error);
         alert('保存失敗：' + error.message);
@@ -3541,23 +3401,159 @@ function saveEditBattle(battleId) {
     
     <!-- 初始化腳本 -->
     <script>
+        // 全域變數聲明
+        let dataManager;
+        let uiController;
+        
         // 確保所有模組載入後再初始化
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('應用程式正在初始化...');
+            console.log('🚀 開始初始化應用程式...');
             
-            // 檢查必要的物件是否存在
-            if (typeof dataManager === 'undefined') {
-                console.error('DataManager 未載入！');
+            try {
+                // 檢查依賴
+                if (typeof CONFIG === 'undefined') {
+                    throw new Error('CONFIG 未載入');
+                }
+                if (typeof DataManager === 'undefined') {
+                    throw new Error('DataManager 類別未載入');
+                }
+                if (typeof UIController === 'undefined') {
+                    throw new Error('UIController 類別未載入');
+                }
+                
+                console.log('✅ 所有依賴已載入');
+                
+                // 初始化 DataManager
+                dataManager = new DataManager();
+                console.log('✅ DataManager 初始化成功');
+                
+                // 初始化 UIController
+                uiController = new UIController();
+                console.log('✅ UIController 初始化成功');
+                
+                // 設定預設面板
+                setTimeout(() => {
+                    if (uiController && typeof uiController.showPanel === 'function') {
+                        uiController.showPanel('stats');
+                        console.log('✅ 預設面板設定完成');
+                    }
+                }, 100);
+                
+                console.log('🎉 應用程式初始化完成！');
+                
+            } catch (error) {
+                console.error('❌ 應用程式初始化失敗:', error);
+                document.body.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #f44336; background: #1a1a2e; min-height: 100vh;">
+                        <h1>🚫 應用程式初始化失敗</h1>
+                        <p><strong>錯誤:</strong> ${error.message}</p>
+                        <p>請檢查瀏覽器控制台獲取詳細資訊。</p>
+                        <button onclick="window.location.reload()" style="padding: 10px 20px; margin: 10px; background: #2196f3; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            重新載入頁面
+                        </button>
+                        <button onclick="window.open('diagnostic.html', '_blank')" style="padding: 10px 20px; margin: 10px; background: #ff9800; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            開啟診斷頁面
+                        </button>
+                    </div>
+                `;
             }
-            if (typeof rankManager === 'undefined') {
-                console.error('RankManager 未載入！');
-            }
-            if (typeof uiController === 'undefined') {
-                console.error('UIController 未載入！');
-            }
-            
-            console.log('應用程式初始化完成！');
         });
+        
+        // 全域函數 (供 HTML onclick 使用)
+        function showPanel(panelName) {
+            console.log('showPanel 被調用:', panelName);
+            if (uiController && typeof uiController.showPanel === 'function') {
+                uiController.showPanel(panelName);
+            } else {
+                console.error('uiController 尚未初始化或 showPanel 方法不存在');
+                alert('系統尚未完全載入，請稍候再試');
+            }
+        }
+        
+        function addBattle() {
+            if (uiController && typeof uiController.addBattle === 'function') {
+                uiController.addBattle();
+            } else {
+                console.error('uiController 尚未初始化');
+            }
+        }
+        
+        function clearAllData() {
+            if (uiController && typeof uiController.clearAllData === 'function') {
+                uiController.clearAllData();
+            } else {
+                console.error('uiController 尚未初始化');
+            }
+        }
+        
+        function exportData() {
+            if (uiController && typeof uiController.exportData === 'function') {
+                uiController.exportData();
+            } else {
+                console.error('uiController 尚未初始化');
+            }
+        }
+        
+        function importFromFile(event) {
+            if (uiController && typeof uiController.importFromFile === 'function') {
+                uiController.importFromFile(event);
+            } else {
+                console.error('uiController 尚未初始化');
+            }
+        }
+        
+        // 其他必要的全域函數
+        function editStartingBP() {
+            if (uiController) uiController.editStartingBP();
+        }
+        
+        function editCurrentRank() {
+            if (uiController) uiController.editCurrentRank();
+        }
+        
+        function editPlayerName() {
+            if (uiController) uiController.editPlayerName();
+        }
+        
+        function editGameId() {
+            if (uiController) uiController.editGameId();
+        }
+        
+        function savePlayerProfile() {
+            if (uiController) uiController.savePlayerProfile();
+        }
+        
+        function resetPlayerProfile() {
+            if (uiController) uiController.resetPlayerProfile();
+        }
+        
+        function exportPlayerProfile() {
+            if (uiController) uiController.exportPlayerProfile();
+        }
+        
+        function showMatrixType(type) {
+            if (uiController) uiController.showMatrixType(type);
+        }
+        
+        function toggleRankChange(battleIndex, battleId) {
+            if (uiController) uiController.toggleRankChange(battleIndex, battleId);
+        }
+        
+        function confirmRankChange(battleIndex, battleId) {
+            if (uiController) uiController.confirmRankChange(battleIndex, battleId);
+        }
+        
+        function editBattle(battleId) {
+            if (uiController) uiController.editBattle(battleId);
+        }
+        
+        function deleteBattle(battleId) {
+            if (uiController) uiController.deleteBattle(battleId);
+        }
+        
+        function saveEditBattle(battleId) {
+            if (uiController) uiController.saveEditBattle(battleId);
+        }
     </script>
 </body>
 </html>

@@ -6,7 +6,7 @@ class DataManager {
         this.playerData = this.loadPlayerData();
         this.battleData = this.loadBattleData();
         this.startingBP = this.loadStartingBP();
-        this.currentRank = this.loadCurrentRank();
+        this.currentGroup = this.loadCurrentGroup();
         this.rankChangeHistory = this.loadRankChangeHistory(); // 新增分組變動歷史
     }
 
@@ -46,16 +46,16 @@ class DataManager {
         localStorage.setItem(CONFIG.STORAGE_KEYS.STARTING_BP, this.startingBP);
     }
 
-    // 載入當前階級
-    loadCurrentRank() {
-        const stored = localStorage.getItem(CONFIG.STORAGE_KEYS.CURRENT_RANK);
-        return stored || CONFIG.DEFAULTS.CURRENT_RANK;
+    // 載入當前分組
+    loadCurrentGroup() {
+        const stored = localStorage.getItem(CONFIG.STORAGE_KEYS.CURRENT_GROUP);
+        return stored || CONFIG.DEFAULTS.CURRENT_GROUP;
     }
 
-    // 儲存當前階級
-    saveCurrentRank(rank = null) {
-        if (rank) this.currentRank = rank;
-        localStorage.setItem(CONFIG.STORAGE_KEYS.CURRENT_RANK, this.currentRank);
+    // 儲存當前分組
+    saveCurrentGroup(group = null) {
+        if (group) this.currentGroup = group;
+        localStorage.setItem(CONFIG.STORAGE_KEYS.CURRENT_GROUP, this.currentGroup);
     }
 
     // 載入分組變動歷史
@@ -272,7 +272,7 @@ class DataManager {
         exportText += `階級：${currentRankLevel}\n`;
         exportText += `起始BP：${this.startingBP}\n`;
         exportText += `目前BP：${stats.currentBP}\n`;
-        exportText += `分組：${RANK_DATA[this.currentRank].name}\n`;
+        exportText += `分組：${RANK_DATA[this.currentGroup].name}\n`;
         exportText += `總勝率：${stats.winRate}% (${stats.wins}勝/${stats.totalGames - stats.wins}敗)\n`;
         exportText += `先手勝率：${stats.firstWinRate}% (${stats.firstTurnWins}勝/${stats.firstTurnGames - stats.firstTurnWins}敗，共${stats.firstTurnGames}場)\n`;
         exportText += `後手勝率：${stats.secondWinRate}% (${stats.secondTurnWins}勝/${stats.secondTurnGames - stats.secondTurnWins}敗，共${stats.secondTurnGames}場)\n\n`;
@@ -372,8 +372,8 @@ class DataManager {
                     
                     // 如果檢測到分組，自動調整
                     if (detectedGroup && RANK_DATA[detectedGroup]) {
-                        this.currentRank = detectedGroup;
-                        this.saveCurrentRank();
+                        this.currentGroup = detectedGroup;
+                        this.saveCurrentGroup();
                     }
                     
                     this.saveStartingBP();
@@ -460,7 +460,7 @@ class DataManager {
         
         let exportText = `闇影詩章:凌越世界 分組變動分析報告\n`;
         exportText += `生成日期：${new Date().toISOString().split('T')[0]}\n`;
-        exportText += `目前狀態：${this.currentRank} | BP: ${stats.currentBP} | 勝率: ${stats.winRate}%\n\n`;
+        exportText += `目前狀態：${this.currentGroup} | BP: ${stats.currentBP} | 勝率: ${stats.winRate}%\n\n`;
         
         exportText += `=== 分組變動統計 ===\n`;
         exportText += `總變動次數：${analysis.totalChanges}\n`;
@@ -500,6 +500,3 @@ class DataManager {
         return exportText;
     }
 }
-
-// 全域數據管理實例
-const dataManager = new DataManager();

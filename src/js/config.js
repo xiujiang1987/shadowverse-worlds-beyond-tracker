@@ -2,19 +2,23 @@
 // 此文件包含所有應用程式的配置常數和基礎數據
 
 const CONFIG = {
+    // 版本資訊
+    VERSION: 'v1.5.0',
+    BUILD_DATE: '2025-07-02',
+    
     // localStorage keys
     STORAGE_KEYS: {
         PLAYER: 'shadowverseWorldsBeyondPlayer',
         BATTLES: 'shadowverseWorldsBeyondBattles',
         STARTING_BP: 'shadowverseWorldsBeyondStartingBP',
-        CURRENT_RANK: 'shadowverseWorldsBeyondCurrentRank',
+        CURRENT_GROUP: 'shadowverseWorldsBeyondCurrentGroup', // 分組(Group): 綠寶石、黃寶石等
         RANK_CHANGES: 'shadowverseWorldsBeyondRankChanges'
     },
     
     // 默認值
     DEFAULTS: {
         STARTING_BP: 43945,
-        CURRENT_RANK: '鑽石',
+        CURRENT_GROUP: '鑽石', // 分組，非階級
         WIN_BP: 320,
         LOSE_BP: 30
     },
@@ -26,8 +30,8 @@ const CONFIG = {
     }
 };
 
-// 階級數據
-const RANK_DATA = {
+// 分組數據（Group Data）- 遊戲內的寶石系統
+const GROUP_DATA = {
     '綠寶石': {
         icon: '🟢',
         name: '綠寶石',
@@ -74,6 +78,9 @@ const RANK_DATA = {
         description: '• 最高分組<br>• 維持條件：勝率60%以上<br>• 低於50%有掉級風險，倍率x2.0'
     }
 };
+
+// 為了向後相容，保留舊名稱
+const RANK_DATA = GROUP_DATA;
 
 // 職業數據
 const CLASS_DATA = {

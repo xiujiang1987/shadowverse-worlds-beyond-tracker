@@ -349,23 +349,159 @@
     
     <!-- 初始化腳本 -->
     <script>
+        // 全域變數聲明
+        let dataManager;
+        let uiController;
+        
         // 確保所有模組載入後再初始化
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('應用程式正在初始化...');
+            console.log('🚀 開始初始化應用程式...');
             
-            // 檢查必要的物件是否存在
-            if (typeof dataManager === 'undefined') {
-                console.error('DataManager 未載入！');
+            try {
+                // 檢查依賴
+                if (typeof CONFIG === 'undefined') {
+                    throw new Error('CONFIG 未載入');
+                }
+                if (typeof DataManager === 'undefined') {
+                    throw new Error('DataManager 類別未載入');
+                }
+                if (typeof UIController === 'undefined') {
+                    throw new Error('UIController 類別未載入');
+                }
+                
+                console.log('✅ 所有依賴已載入');
+                
+                // 初始化 DataManager
+                dataManager = new DataManager();
+                console.log('✅ DataManager 初始化成功');
+                
+                // 初始化 UIController
+                uiController = new UIController();
+                console.log('✅ UIController 初始化成功');
+                
+                // 設定預設面板
+                setTimeout(() => {
+                    if (uiController && typeof uiController.showPanel === 'function') {
+                        uiController.showPanel('stats');
+                        console.log('✅ 預設面板設定完成');
+                    }
+                }, 100);
+                
+                console.log('🎉 應用程式初始化完成！');
+                
+            } catch (error) {
+                console.error('❌ 應用程式初始化失敗:', error);
+                document.body.innerHTML = `
+                    <div style="padding: 20px; text-align: center; color: #f44336; background: #1a1a2e; min-height: 100vh;">
+                        <h1>🚫 應用程式初始化失敗</h1>
+                        <p><strong>錯誤:</strong> ${error.message}</p>
+                        <p>請檢查瀏覽器控制台獲取詳細資訊。</p>
+                        <button onclick="window.location.reload()" style="padding: 10px 20px; margin: 10px; background: #2196f3; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            重新載入頁面
+                        </button>
+                        <button onclick="window.open('diagnostic.html', '_blank')" style="padding: 10px 20px; margin: 10px; background: #ff9800; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            開啟診斷頁面
+                        </button>
+                    </div>
+                `;
             }
-            if (typeof rankManager === 'undefined') {
-                console.error('RankManager 未載入！');
-            }
-            if (typeof uiController === 'undefined') {
-                console.error('UIController 未載入！');
-            }
-            
-            console.log('應用程式初始化完成！');
         });
+        
+        // 全域函數 (供 HTML onclick 使用)
+        function showPanel(panelName) {
+            console.log('showPanel 被調用:', panelName);
+            if (uiController && typeof uiController.showPanel === 'function') {
+                uiController.showPanel(panelName);
+            } else {
+                console.error('uiController 尚未初始化或 showPanel 方法不存在');
+                alert('系統尚未完全載入，請稍候再試');
+            }
+        }
+        
+        function addBattle() {
+            if (uiController && typeof uiController.addBattle === 'function') {
+                uiController.addBattle();
+            } else {
+                console.error('uiController 尚未初始化');
+            }
+        }
+        
+        function clearAllData() {
+            if (uiController && typeof uiController.clearAllData === 'function') {
+                uiController.clearAllData();
+            } else {
+                console.error('uiController 尚未初始化');
+            }
+        }
+        
+        function exportData() {
+            if (uiController && typeof uiController.exportData === 'function') {
+                uiController.exportData();
+            } else {
+                console.error('uiController 尚未初始化');
+            }
+        }
+        
+        function importFromFile(event) {
+            if (uiController && typeof uiController.importFromFile === 'function') {
+                uiController.importFromFile(event);
+            } else {
+                console.error('uiController 尚未初始化');
+            }
+        }
+        
+        // 其他必要的全域函數
+        function editStartingBP() {
+            if (uiController) uiController.editStartingBP();
+        }
+        
+        function editCurrentRank() {
+            if (uiController) uiController.editCurrentRank();
+        }
+        
+        function editPlayerName() {
+            if (uiController) uiController.editPlayerName();
+        }
+        
+        function editGameId() {
+            if (uiController) uiController.editGameId();
+        }
+        
+        function savePlayerProfile() {
+            if (uiController) uiController.savePlayerProfile();
+        }
+        
+        function resetPlayerProfile() {
+            if (uiController) uiController.resetPlayerProfile();
+        }
+        
+        function exportPlayerProfile() {
+            if (uiController) uiController.exportPlayerProfile();
+        }
+        
+        function showMatrixType(type) {
+            if (uiController) uiController.showMatrixType(type);
+        }
+        
+        function toggleRankChange(battleIndex, battleId) {
+            if (uiController) uiController.toggleRankChange(battleIndex, battleId);
+        }
+        
+        function confirmRankChange(battleIndex, battleId) {
+            if (uiController) uiController.confirmRankChange(battleIndex, battleId);
+        }
+        
+        function editBattle(battleId) {
+            if (uiController) uiController.editBattle(battleId);
+        }
+        
+        function deleteBattle(battleId) {
+            if (uiController) uiController.deleteBattle(battleId);
+        }
+        
+        function saveEditBattle(battleId) {
+            if (uiController) uiController.saveEditBattle(battleId);
+        }
     </script>
 </body>
 </html>
