@@ -301,11 +301,9 @@ shadowverse_worlds_beyond_tracker/
 ### 💝 支持開發
 如果這個工具對您有幫助，歡迎支持開發者繼續改進和維護：
 
-#### 🎁 捐款斗內
-- **街口支付**: `901013711` (野藤)
-- **LINE Pay**: 搜尋 `901013711`
-- **PayPal**: [paypal.me/aaronhsu1987](https://paypal.me/aaronhsu1987) 
-- **悠遊付**: `H0975975251`
+#### 🎁 捐款方式
+- **🇹🇼 街口支付**: `901539824` (Jno)
+- **🌍 PayPal**: [paypal.me/xiujiang1987](https://paypal.me/xiujiang1987?country.x=TW&locale.x=zh_TW)
 
 #### 💖 其他支持方式
 - ⭐ **GitHub Star**: [給專案一個星星](https://github.com/xiujiang1987/shadowverse-worlds-beyond-tracker)
@@ -361,7 +359,7 @@ shadowverse_worlds_beyond_tracker/
 
 - 🌟 **GitHub**: [xiujiang1987/shadowverse-worlds-beyond-tracker](https://github.com/xiujiang1987/shadowverse-worlds-beyond-tracker)
 - 🐛 **問題回報**: [Issues](https://github.com/xiujiang1987/shadowverse-worlds-beyond-tracker/issues)
-- 💝 **捐款支持**: 街口支付 `901013711` | LINE Pay `901013711`
+- 💝 **捐款支持**: 街口支付 `901539824` | [PayPal](https://paypal.me/xiujiang1987?country.x=TW&locale.x=zh_TW)
 
 ---
 
