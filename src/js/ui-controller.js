@@ -585,4 +585,14 @@ class UIController {
         
         URL.revokeObjectURL(url);
     }
+
+    // 更新HTML元素內容的通用方法
+    updateElement(elementId, value) {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.textContent = value;
+        } else {
+            console.warn(`Element with ID "${elementId}" not found`);
+        }
+    }
 }

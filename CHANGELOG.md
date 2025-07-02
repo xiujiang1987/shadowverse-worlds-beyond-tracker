@@ -1,5 +1,26 @@
 # Shadowverse: Worlds Beyond Tracker - 變更日誌
 
+## 版本 1.5.4 (2025-01-22) - 重大初始化錯誤修復
+
+### 🔥 緊急修復
+- **修復 `this.updateElement is not a function` 錯誤**: 
+  - 該方法在之前重構中遭到誤刪
+  - 重新實作 `updateElement(elementId, value)` 方法
+  - 修復應用程式無法正常初始化的問題
+  - 確保所有統計數據可正常顯示
+
+### ✅ 修復驗證
+- ✅ 應用程式現在可以正常啟動
+- ✅ 統計面板數據顯示正常
+- ✅ BP、勝率、分組等資訊正確更新
+- ✅ 不再出現 JavaScript 錯誤
+
+### 🛠️ 技術細節
+- 在 `UIController` 類別中添加了缺失的 `updateElement` 方法
+- 該方法負責安全地更新 DOM 元素內容
+- 包含錯誤處理，當元素不存在時會顯示警告
+- 重新建置了 `index_bundle.html` 確保修復同步
+
 ## 版本 1.5.3 (2025-07-03) - 匯出功能重大修復
 
 ### 🔥 重大修復
