@@ -298,6 +298,23 @@ shadowverse_worlds_beyond_tracker/
 
 ## 📞 支援與回饋
 
+### 💝 支持開發
+如果這個工具對您有幫助，歡迎支持開發者繼續改進和維護：
+
+#### 🎁 捐款斗內
+- **街口支付**: `901013711` (野藤)
+- **LINE Pay**: 搜尋 `901013711`
+- **PayPal**: [paypal.me/aaronhsu1987](https://paypal.me/aaronhsu1987) 
+- **悠遊付**: `H0975975251`
+
+#### 💖 其他支持方式
+- ⭐ **GitHub Star**: [給專案一個星星](https://github.com/xiujiang1987/shadowverse-worlds-beyond-tracker)
+- 🐛 **回報問題**: [提交 Issues](https://github.com/xiujiang1987/shadowverse-worlds-beyond-tracker/issues)
+- 📝 **分享使用心得**: 到 [Discussions](https://github.com/xiujiang1987/shadowverse-worlds-beyond-tracker/discussions) 分享
+- 📢 **推薦給朋友**: 幫忙介紹給其他玩家使用
+
+> 💝 **感謝您的支持！** 每一份捐款和回饋都是開發動力的來源，讓我們能夠持續優化這個工具，為 Shadowverse 社群提供更好的服務。
+
 ### 🤝 幫助改進分組算法
 **我們需要您的數據！** 為了完善分組升降自動判斷功能，誠摯邀請所有使用者協助收集真實遊戲數據：
 
@@ -331,6 +348,20 @@ shadowverse_worlds_beyond_tracker/
 
 ### � 致謝
 感謝所有使用者的回饋和建議，讓這個工具能夠不斷改進和完善。
+
+---
+
+## 🎉 立即開始使用
+
+1. **快速體驗**: 下載 `index_bundle.html` 直接雙擊開啟
+2. **完整功能**: 克隆整個專案獲得最佳體驗
+3. **支持開發**: 如果喜歡請給我們一個 ⭐ 並考慮捐款支持
+
+### 📞 聯絡與支持
+
+- 🌟 **GitHub**: [xiujiang1987/shadowverse-worlds-beyond-tracker](https://github.com/xiujiang1987/shadowverse-worlds-beyond-tracker)
+- 🐛 **問題回報**: [Issues](https://github.com/xiujiang1987/shadowverse-worlds-beyond-tracker/issues)
+- 💝 **捐款支持**: 街口支付 `901013711` | LINE Pay `901013711`
 
 ---
 
