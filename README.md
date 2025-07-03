@@ -344,6 +344,12 @@ shadowverse_worlds_beyond_tracker/
 - **🇹🇼 街口支付**: `901539824` (Jno)
 - **🌍 PayPal**: [paypal.me/xiujiang1987](https://paypal.me/xiujiang1987?country.x=TW&locale.x=zh_TW)
 
+##### 📱 街口支付 QR Code
+<div align="center">
+  <img src="assets/images/jkos_payment_qr.png" alt="街口支付收款QR Code" width="200" />
+  <p><em>掃描上方QR Code即可進行街口支付捐款</em></p>
+</div>
+
 #### 💖 其他支持方式
 - ⭐ **GitHub Star**: [給專案一個星星](https://github.com/xiujiang1987/shadowverse-worlds-beyond-tracker)
 - 🐛 **回報問題**: [提交 Issues](https://github.com/xiujiang1987/shadowverse-worlds-beyond-tracker/issues)
