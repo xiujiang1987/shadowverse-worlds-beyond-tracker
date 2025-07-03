@@ -499,4 +499,20 @@ class DataManager {
 
         return exportText;
     }
+
+    // 清除所有數據
+    clearAllData() {
+        this.battleData = [];
+        this.rankChangeHistory = [];
+        this.startingBP = 50000;
+        this.currentGroup = '青銅';
+        this.playerData = { ...DEFAULT_PLAYER_DATA };
+        
+        // 清除 localStorage
+        localStorage.removeItem(CONFIG.STORAGE_KEYS.BATTLES);
+        localStorage.removeItem(CONFIG.STORAGE_KEYS.STARTING_BP);
+        localStorage.removeItem(CONFIG.STORAGE_KEYS.CURRENT_GROUP);
+        localStorage.removeItem(CONFIG.STORAGE_KEYS.RANK_CHANGES);
+        localStorage.removeItem(CONFIG.STORAGE_KEYS.PLAYER);
+    }
 }

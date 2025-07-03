@@ -595,4 +595,219 @@ class UIController {
             console.warn(`Element with ID "${elementId}" not found`);
         }
     }
+
+    // 綁定事件處理器
+    bindEvents() {
+        // BP 輸入框 Enter 鍵提交
+        const bpChangeInput = document.getElementById('bpChange');
+        if (bpChangeInput) {
+            bpChangeInput.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    this.addBattle();
+                }
+            });
+        }
+
+        // 檔案匯入處理
+        const fileInput = document.getElementById('fileInput');
+        if (fileInput) {
+            fileInput.addEventListener('change', (event) => {
+                this.importFromFile(event);
+            });
+        }
+
+        // 拖拽區域事件
+        const importArea = document.getElementById('importArea');
+        if (importArea) {
+            importArea.addEventListener('dragover', (event) => {
+                event.preventDefault();
+                importArea.style.backgroundColor = 'rgba(76, 175, 80, 0.2)';
+            });
+
+            importArea.addEventListener('dragleave', (event) => {
+                event.preventDefault();
+                importArea.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+            });
+
+            importArea.addEventListener('drop', (event) => {
+                event.preventDefault();
+                importArea.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                
+                const files = event.dataTransfer.files;
+                if (files.length > 0) {
+                    const mockEvent = { target: { files: files } };
+                    this.importFromFile(mockEvent);
+                }
+            });
+        }
+    }
+
+    // 檔案匯入功能
+    importFromFile(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (file.type === 'application/json') {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    this.processImportedData(data);
+                } catch (error) {
+                    alert('JSON 檔案格式錯誤：' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        } else {
+            alert('僅支援 JSON 格式的檔案');
+        }
+    }
+
+    // 處理匯入的數據
+    processImportedData(data) {
+        try {
+            if (data.battleData && Array.isArray(data.battleData)) {
+                if (confirm(`確定要匯入 ${data.battleData.length} 筆對戰記錄嗎？這將覆蓋現有數據。`)) {
+                    dataManager.battleData = data.battleData;
+                    if (data.startingBP) dataManager.startingBP = data.startingBP;
+                    if (data.currentGroup) dataManager.currentGroup = data.currentGroup;
+                    if (data.playerData) dataManager.playerData = { ...dataManager.playerData, ...data.playerData };
+                    if (data.rankChanges) dataManager.rankChangeHistory = data.rankChanges;
+                    
+                    dataManager.saveBattleData();
+                    this.updateStats();
+                    this.renderBattles();
+                    alert('數據匯入成功！');
+                }
+            } else {
+                alert('檔案格式不正確，缺少有效的對戰數據');
+            }
+        } catch (error) {
+            alert('數據處理錯誤：' + error.message);
+        }
+    }
+
+    // 清除所有數據
+    clearAllData() {
+        if (confirm('確定要清除所有數據嗎？此操作無法復原！')) {
+            dataManager.clearAllData();
+            this.updateStats();
+            this.renderBattles();
+            alert('所有數據已清除');
+        }
+    }
+
+    // 矩陣類型切換
+    showMatrixType(type) {
+        const firstBtn = document.getElementById('firstMatrixBtn');
+        const secondBtn = document.getElementById('secondMatrixBtn');
+        
+        if (firstBtn && secondBtn) {
+            firstBtn.classList.toggle('active', type === 'first');
+            secondBtn.classList.toggle('active', type === 'second');
+        }
+        
+        this.renderMatrix(type);
+    }
+
+    // 切換分組變動標記
+    toggleRankChange(battleIndex, battleId) {
+        const isMarked = dataManager.rankChangeHistory.some(change => change.battleId === battleId);
+        
+        if (isMarked) {
+            // 移除標記
+            dataManager.rankChangeHistory = dataManager.rankChangeHistory.filter(change => change.battleId !== battleId);
+        } else {
+            // 添加標記
+            const battle = dataManager.battleData[battleIndex];
+            if (battle) {
+                const changeType = prompt('請選擇分組變動類型：\n1. upgrade (升級)\n2. downgrade (降級)\n3. maintain (保持)', 'upgrade');
+                if (changeType && ['upgrade', 'downgrade', 'maintain'].includes(changeType)) {
+                    dataManager.rankChangeHistory.push({
+                        battleId: battleId,
+                        battleIndex: battleIndex,
+                        changeType: changeType,
+                        timestamp: new Date().toISOString(),
+                        beforeBP: battle.bpChange < 0 ? dataManager.getStatistics().currentBP - battle.bpChange : dataManager.getStatistics().currentBP,
+                        afterBP: dataManager.getStatistics().currentBP,
+                        notes: `${battle.myClass} vs ${battle.opponentClass} (${battle.result})`
+                    });
+                }
+            }
+        }
+        
+        dataManager.saveRankChangeHistory();
+        this.renderBattles();
+    }
+
+    // 編輯對戰記錄
+    editBattle(battleId) {
+        const battle = dataManager.battleData.find(b => b.id === battleId);
+        if (!battle) return;
+
+        const newResult = prompt('修改對戰結果 (勝/負):', battle.result);
+        if (newResult && ['勝', '負'].includes(newResult)) {
+            battle.result = newResult;
+            dataManager.saveBattleData();
+            this.updateStats();
+            this.renderBattles();
+        }
+    }
+
+    // 刪除對戰記錄
+    deleteBattle(battleId) {
+        if (confirm('確定要刪除這筆對戰記錄嗎？')) {
+            dataManager.battleData = dataManager.battleData.filter(b => b.id !== battleId);
+            // 同時移除相關的分組變動標記
+            dataManager.rankChangeHistory = dataManager.rankChangeHistory.filter(change => change.battleId !== battleId);
+            dataManager.saveBattleData();
+            dataManager.saveRankChangeHistory();
+            this.updateStats();
+            this.renderBattles();
+        }
+    }
+
+    // 玩家資料編輯方法
+    editPlayerName() {
+        const current = dataManager.playerData.playerName || '未設定';
+        const newValue = prompt('請輸入玩家名稱:', current);
+        if (newValue !== null) {
+            dataManager.playerData.playerName = newValue;
+            dataManager.savePlayerData();
+            this.initPlayerData();
+        }
+    }
+
+    editGameId() {
+        const current = dataManager.playerData.gameId || '未設定';
+        const newValue = prompt('請輸入遊戲ID:', current);
+        if (newValue !== null) {
+            dataManager.playerData.gameId = newValue;
+            dataManager.savePlayerData();
+            this.initPlayerData();
+        }
+    }
+
+    editMainClass() {
+        const classes = ['皇', '森', '龍', '死', '血', '復', '妖'];
+        const current = dataManager.playerData.mainClass || '龍';
+        const newValue = prompt('請選擇主要職業 (' + classes.join('/') + '):', current);
+        if (newValue && classes.includes(newValue)) {
+            dataManager.playerData.mainClass = newValue;
+            dataManager.savePlayerData();
+            this.initPlayerData();
+        }
+    }
+
+    editTargetRank() {
+        const ranks = Object.keys(GROUP_DATA);
+        const current = dataManager.playerData.targetRank || '鑽石';
+        const newValue = prompt('請選擇目標分組 (' + ranks.join('/') + '):', current);
+        if (newValue && ranks.includes(newValue)) {
+            dataManager.playerData.targetRank = newValue;
+            dataManager.savePlayerData();
+            this.initPlayerData();
+        }
+    }
 }
