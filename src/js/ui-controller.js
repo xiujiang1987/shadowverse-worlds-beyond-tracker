@@ -333,9 +333,12 @@ class UIController {
 
     editTargetRank() {
         const ranks = Object.keys(RANK_DATA);
-        const newRank = prompt('請選擇目標分組：\n' + ranks.join(', '), dataManager.playerData.targetRank);
-        if (newRank !== null && ranks.includes(newRank.trim())) {
-            this.editPlayerField('targetRank', null, 'targetRank', newRank.trim());
+        const current = dataManager.playerData.targetRank || '鑽石';
+        const newValue = prompt('請選擇目標分組 (' + ranks.join('/') + '):', current);
+        if (newValue && ranks.includes(newValue)) {
+            dataManager.playerData.targetRank = newValue;
+            dataManager.savePlayerData();
+            this.initPlayerData();
         }
     }
 
@@ -809,5 +812,176 @@ class UIController {
             dataManager.savePlayerData();
             this.initPlayerData();
         }
+    }
+
+    // 渲染對戰矩陣
+    renderMatrix() {
+        const matrixData = dataManager.getMatrixStatistics();
+
+        // 渲染先手矩陣
+        this.renderMatrixTable('firstMatrixTable', matrixData.first, '先手');
+        this.renderMatrixStats('firstMatrixStats', matrixData.first, '先手');
+
+        // 渲染後手矩陣
+        this.renderMatrixTable('secondMatrixTable', matrixData.second, '後手');
+        this.renderMatrixStats('secondMatrixStats', matrixData.second, '後手');
+    }
+
+    // 渲染矩陣表格
+    renderMatrixTable(tableId, matrixData, turnType) {
+        const container = document.getElementById(tableId);
+        if (!container) return;
+
+        let html = '<table class="matrix-table-content">';
+
+        // 表頭
+        html += '<thead><tr><th class="matrix-header-corner">我方\\對手</th>';
+        CLASS_LIST.forEach(opponentClass => {
+            html += `<th class="matrix-header">${opponentClass}</th>`;
+        });
+        html += '</tr></thead>';
+
+        // 表身
+        html += '<tbody>';
+        CLASS_LIST.forEach(myClass => {
+            html += `<tr><td class="matrix-row-header">${myClass}</td>`;
+            CLASS_LIST.forEach(opponentClass => {
+                const data = matrixData[myClass][opponentClass];
+                const winRate = data.winRate;
+                const total = data.total;
+
+                let cellClass = 'matrix-cell';
+                let displayValue = '--';
+
+                if (total > 0) {
+                    displayValue = `${winRate}%`;
+                    if (winRate >= 70) {
+                        cellClass += ' high-winrate';
+                    } else if (winRate >= 50) {
+                        cellClass += ' medium-winrate';
+                    } else {
+                        cellClass += ' low-winrate';
+                    }
+                }
+
+                html += `<td class="${cellClass}" title="${myClass} vs ${opponentClass} (${turnType}): ${data.wins}勝/${total}場">${displayValue}</td>`;
+            });
+            html += '</tr>';
+        });
+        html += '</tbody></table>';
+
+        container.innerHTML = html;
+    }
+
+    // 渲染矩陣統計信息
+    renderMatrixStats(statsId, matrixData, turnType) {
+        const container = document.getElementById(statsId);
+        if (!container) return;
+
+        let totalGames = 0;
+        let totalWins = 0;
+        let bestMatchups = [];
+        let worstMatchups = [];
+
+        // 計算統計
+        CLASS_LIST.forEach(myClass => {
+            CLASS_LIST.forEach(opponentClass => {
+                const data = matrixData[myClass][opponentClass];
+                if (data.total > 0) {
+                    totalGames += data.total;
+                    totalWins += data.wins;
+
+                    if (data.total >= 3) { // 至少3場才納入最佳/最差統計
+                        const matchup = {
+                            vs: `${myClass} vs ${opponentClass}`,
+                            winRate: data.winRate,
+                            record: `${data.wins}勝/${data.total}場`
+                        };
+
+                        if (data.winRate >= 70) {
+                            bestMatchups.push(matchup);
+                        } else if (data.winRate < 40) {
+                            worstMatchups.push(matchup);
+                        }
+                    }
+                }
+            });
+        });
+
+        const overallWinRate = totalGames > 0 ? Math.round((totalWins / totalGames) * 100) : 0;
+
+        // 排序
+        bestMatchups.sort((a, b) => b.winRate - a.winRate);
+        worstMatchups.sort((a, b) => a.winRate - b.winRate);
+
+        let html = `
+            <div class="matrix-stats-content">
+                <h4>${turnType}整體統計</h4>
+                <p>總場次：${totalGames}場 | 總勝率：${overallWinRate}%</p>
+        `;
+
+        if (bestMatchups.length > 0) {
+            html += `
+                <div class="matchup-section">
+                    <h5 style="color: #4CAF50;">🔥 優勢對戰 (≥70%)</h5>
+                    <ul>
+            `;
+            bestMatchups.slice(0, 5).forEach(matchup => {
+                html += `<li>${matchup.vs}: ${matchup.winRate}% (${matchup.record})</li>`;
+            });
+            html += '</ul></div>';
+        }
+
+        if (worstMatchups.length > 0) {
+            html += `
+                <div class="matchup-section">
+                    <h5 style="color: #F44336;">⚠️ 劣勢對戰 (<40%)</h5>
+                    <ul>
+            `;
+            worstMatchups.slice(0, 5).forEach(matchup => {
+                html += `<li>${matchup.vs}: ${matchup.winRate}% (${matchup.record})</li>`;
+            });
+            html += '</ul></div>';
+        }
+
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    // 顯示Toast訊息
+    showToast(message, type = 'info') {
+        // 移除現有的toast
+        const existingToast = document.querySelector('.toast');
+        if (existingToast) {
+            existingToast.remove();
+        }
+
+        // 創建新的toast
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+
+        // 添加到頁面
+        document.body.appendChild(toast);
+
+        // 顯示動畫
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 100);
+
+        // 自動隱藏
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.remove();
+                }
+            }, 300);
+        }, 3000);
+    }
+
+    // 顯示保存狀態
+    showSaveStatus(message, color) {
+        this.showToast(message, color.includes('4caf50') ? 'success' : color.includes('f44336') ? 'error' : 'info');
     }
 }
