@@ -1,5 +1,30 @@
 # Shadowverse: Worlds Beyond Tracker - 變更日誌
 
+## 版本 1.5.7 (2025-01-22) - 匯出與矩陣功能修復
+
+### 🔥 重大修復
+- **匯出功能錯誤修復**: 修復 `this.calculateCurrentBP is not a function` 錯誤
+- **矩陣切換修復**: 修復後手矩陣無法正確切換的問題
+- **功能完整性**: 確保所有核心功能正常運作
+
+### ✨ 新增功能
+- **BP計算方法**: 實作 `calculateCurrentBP()` 方法
+- **智能矩陣切換**: 改進矩陣顯示邏輯，支援先手/後手切換
+
+### 🛠️ 技術改進
+- 實作 `calculateCurrentBP()` 方法，調用 DataManager 的統計功能
+- 重構 `renderMatrix(activeType)` 支援類型參數
+- 改進矩陣顯示控制，確保正確的先手/後手切換
+- 優化視覺反饋和用戶體驗
+
+### 📋 修復的錯誤
+- ✅ 修復匯出數據時的 `calculateCurrentBP` 錯誤
+- ✅ 修復矩陣無法切換到後手的問題
+- ✅ 修復矩陣顯示控制邏輯
+- ✅ 確保所有統計功能正常運作
+
+## 版本 1.5.6 (2025-01-22) - 矩陣功能完整恢復hadowverse: Worlds Beyond Tracker - 變更日誌
+
 ## 版本 1.5.6 (2025-01-22) - 矩陣功能完全恢復
 
 ### 🔥 重大修復

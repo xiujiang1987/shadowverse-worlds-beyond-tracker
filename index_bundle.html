@@ -1219,7 +1219,7 @@ body {
 
 const CONFIG = {
     // 版本資訊
-    VERSION: 'v1.5.6',
+    VERSION: 'v1.5.7',
     BUILD_DATE: '2025-01-22',
     
     // localStorage keys
@@ -2903,17 +2903,38 @@ class UIController {
         }
     }
 
+    // 計算當前BP
+    calculateCurrentBP() {
+        return dataManager.getStatistics().currentBP;
+    }
+
     // 渲染對戰矩陣
-    renderMatrix() {
+    renderMatrix(activeType = 'first') {
         const matrixData = dataManager.getMatrixStatistics();
 
-        // 渲染先手矩陣
-        this.renderMatrixTable('firstMatrixTable', matrixData.first, '先手');
-        this.renderMatrixStats('firstMatrixStats', matrixData.first, '先手');
+        // 隱藏所有矩陣表格
+        const firstTable = document.getElementById('firstMatrixTable');
+        const secondTable = document.getElementById('secondMatrixTable');
+        const firstStats = document.getElementById('firstMatrixStats');
+        const secondStats = document.getElementById('secondMatrixStats');
 
-        // 渲染後手矩陣
-        this.renderMatrixTable('secondMatrixTable', matrixData.second, '後手');
-        this.renderMatrixStats('secondMatrixStats', matrixData.second, '後手');
+        if (firstTable) firstTable.style.display = 'none';
+        if (secondTable) secondTable.style.display = 'none';
+        if (firstStats) firstStats.style.display = 'none';
+        if (secondStats) secondStats.style.display = 'none';
+
+        // 根據類型顯示對應的矩陣
+        if (activeType === 'first') {
+            if (firstTable) firstTable.style.display = 'block';
+            if (firstStats) firstStats.style.display = 'block';
+            this.renderMatrixTable('firstMatrixTable', matrixData.first, '先手');
+            this.renderMatrixStats('firstMatrixStats', matrixData.first, '先手');
+        } else {
+            if (secondTable) secondTable.style.display = 'block';
+            if (secondStats) secondStats.style.display = 'block';
+            this.renderMatrixTable('secondMatrixTable', matrixData.second, '後手');
+            this.renderMatrixStats('secondMatrixStats', matrixData.second, '後手');
+        }
     }
 
     // 渲染矩陣表格
