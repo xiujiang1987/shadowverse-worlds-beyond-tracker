@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shadowverse Tracker - 矩陣診斷工具</title>
+    <style>
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        .debug-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        pre {
+            background: #000;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 10px 0;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #444;
+            padding: 8px;
+            text-align: center;
+        }
+        .data-table th {
+            background: #333;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Shadowverse Tracker - 矩陣診斷工具</h1>
+        
+        <div class="debug-section">
+            <h3>📋 數據載入</h3>
+            <input type="file" id="dataFile" accept=".json">
+            <button onclick="loadTestData()">載入測試數據</button>
+            <p id="loadStatus">請選擇數據文件...</p>
+        </div>
+
+        <div class="debug-section">
+            <h3>📊 基本統計</h3>
+            <div id="basicStats"></div>
+        </div>
+
+        <div class="debug-section">
+            <h3>🎯 先手/後手分布</h3>
+            <div id="turnOrderStats"></div>
+        </div>
+
+        <div class="debug-section">
+            <h3>🔴 先手矩陣數據</h3>
+            <div id="firstHandMatrix"></div>
+        </div>
+
+        <div class="debug-section">
+            <h3>🔵 後手矩陣數據</h3>
+            <div id="secondHandMatrix"></div>
+        </div>
+
+        <div class="debug-section">
+            <h3>🔍 原始數據樣本</h3>
+            <div id="rawDataSample"></div>
+        </div>
+    </div>
+
+    <script>
+        const CLASS_LIST = ['皇家', '精靈', '巫師', '龍', '夜魔', '主教', '復仇者'];
+        let battleData = [];
+
+        document.getElementById('dataFile').addEventListener('change', handleFileSelect);
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    battleData = data.battleData || [];
+                    document.getElementById('loadStatus').textContent = `✅ 已載入 ${battleData.length} 筆對戰記錄`;
+                    analyzeData();
+                } catch (error) {
+                    document.getElementById('loadStatus').textContent = `❌ 載入失敗: ${error.message}`;
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function loadTestData() {
+            // 創建測試數據
+            battleData = [
+                { myClass: '復仇者', opponentClass: '精靈', turnOrder: '先手', result: '勝' },
+                { myClass: '復仇者', opponentClass: '精靈', turnOrder: '後手', result: '敗' },
+                { myClass: '精靈', opponentClass: '龍', turnOrder: '先手', result: '勝' },
+                { myClass: '精靈', opponentClass: '龍', turnOrder: '後手', result: '勝' },
+                { myClass: '龍', opponentClass: '復仇者', turnOrder: '先手', result: '敗' },
+                { myClass: '龍', opponentClass: '復仇者', turnOrder: '後手', result: '勝' }
+            ];
+            document.getElementById('loadStatus').textContent = `✅ 已載入測試數據 ${battleData.length} 筆`;
+            analyzeData();
+        }
+
+        function analyzeData() {
+            showBasicStats();
+            showTurnOrderStats();
+            analyzeMatrix();
+            showRawDataSample();
+        }
+
+        function showBasicStats() {
+            const total = battleData.length;
+            const withTurnOrder = battleData.filter(b => b.turnOrder).length;
+            const validClasses = battleData.filter(b => 
+                CLASS_LIST.includes(b.myClass) && CLASS_LIST.includes(b.opponentClass)
+            ).length;
+
+            document.getElementById('basicStats').innerHTML = `
+                <p><strong>總對戰記錄:</strong> ${total} 筆</p>
+                <p><strong>有先手/後手資訊:</strong> ${withTurnOrder} 筆 (${((withTurnOrder/total)*100).toFixed(1)}%)</p>
+                <p><strong>職業名稱有效:</strong> ${validClasses} 筆</p>
+            `;
+        }
+
+        function showTurnOrderStats() {
+            const firstHand = battleData.filter(b => b.turnOrder === '先手').length;
+            const secondHand = battleData.filter(b => b.turnOrder === '後手').length;
+            const noTurnOrder = battleData.filter(b => !b.turnOrder).length;
+
+            document.getElementById('turnOrderStats').innerHTML = `
+                <p><strong>先手:</strong> ${firstHand} 筆</p>
+                <p><strong>後手:</strong> ${secondHand} 筆</p>
+                <p><strong>無先手/後手資訊:</strong> ${noTurnOrder} 筆</p>
+            `;
+        }
+
+        function analyzeMatrix() {
+            const matrix = getMatrixStatistics();
+            
+            renderMatrixDebug('firstHandMatrix', matrix.first, '先手');
+            renderMatrixDebug('secondHandMatrix', matrix.second, '後手');
+        }
+
+        function getMatrixStatistics() {
+            const matrix = {
+                first: {},
+                second: {}
+            };
+
+            // 初始化矩陣
+            CLASS_LIST.forEach(myClass => {
+                matrix.first[myClass] = {};
+                matrix.second[myClass] = {};
+                CLASS_LIST.forEach(opponentClass => {
+                    matrix.first[myClass][opponentClass] = { wins: 0, total: 0, winRate: 0 };
+                    matrix.second[myClass][opponentClass] = { wins: 0, total: 0, winRate: 0 };
+                });
+            });
+
+            // 統計對戰數據
+            battleData.forEach(battle => {
+                const { myClass, opponentClass, result, turnOrder } = battle;
+                
+                if (!turnOrder || !CLASS_LIST.includes(myClass) || !CLASS_LIST.includes(opponentClass)) {
+                    return;
+                }
+
+                const turnMatrix = turnOrder === '先手' ? matrix.first : matrix.second;
+                
+                if (turnMatrix[myClass] && turnMatrix[myClass][opponentClass]) {
+                    turnMatrix[myClass][opponentClass].total++;
+                    if (result === '勝') {
+                        turnMatrix[myClass][opponentClass].wins++;
+                    }
+                    
+                    const total = turnMatrix[myClass][opponentClass].total;
+                    const wins = turnMatrix[myClass][opponentClass].wins;
+                    turnMatrix[myClass][opponentClass].winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
+                }
+            });
+
+            return matrix;
+        }
+
+        function renderMatrixDebug(containerId, matrixData, turnType) {
+            let html = `<h4>${turnType}矩陣數據</h4>`;
+            html += '<table class="data-table">';
+            html += '<tr><th>我方\\對手</th>';
+            CLASS_LIST.forEach(cls => html += `<th>${cls}</th>`);
+            html += '</tr>';
+
+            let totalGames = 0;
+            CLASS_LIST.forEach(myClass => {
+                html += `<tr><td><strong>${myClass}</strong></td>`;
+                CLASS_LIST.forEach(opponentClass => {
+                    const data = matrixData[myClass][opponentClass];
+                    totalGames += data.total;
+                    const cellColor = data.total > 0 ? (data.winRate >= 50 ? '#4CAF50' : '#f44336') : '#666';
+                    html += `<td style="background: ${cellColor};">
+                        ${data.total > 0 ? `${data.winRate}%<br>(${data.wins}/${data.total})` : '--'}
+                    </td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</table>';
+            html += `<p><strong>總場次:</strong> ${totalGames} 場</p>`;
+
+            document.getElementById(containerId).innerHTML = html;
+        }
+
+        function showRawDataSample() {
+            const sample = battleData.slice(0, 10);
+            let html = '<h4>前10筆數據樣本</h4>';
+            html += '<table class="data-table">';
+            html += '<tr><th>我方職業</th><th>對手職業</th><th>先手/後手</th><th>結果</th></tr>';
+            
+            sample.forEach(battle => {
+                html += `<tr>
+                    <td>${battle.myClass || 'N/A'}</td>
+                    <td>${battle.opponentClass || 'N/A'}</td>
+                    <td>${battle.turnOrder || 'N/A'}</td>
+                    <td>${battle.result || 'N/A'}</td>
+                </tr>`;
+            });
+            
+            html += '</table>';
+            document.getElementById('rawDataSample').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

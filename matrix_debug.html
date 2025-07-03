@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>矩陣切換 Debug 工具</title>
+    <style>
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+        }
+        .debug-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        .matrix-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #667eea;
+            padding: 10px 20px;
+            border-radius: 25px;
+            color: #fff;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .matrix-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+        }
+        .matrix-table-container {
+            display: none;
+            margin: 20px 0;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        .matrix-table-container.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #444;
+            padding: 8px;
+            text-align: center;
+        }
+        .debug-info {
+            background: rgba(255, 255, 0, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>矩陣切換 Debug 工具</h1>
+        
+        <!-- 載入數據區 -->
+        <div class="debug-section">
+            <h3>1. 載入數據測試</h3>
+            <input type="file" id="dataFile" accept=".json">
+            <button onclick="loadTestData()">載入測試數據</button>
+            <div id="dataStatus" class="debug-info">請選擇JSON檔案或點擊載入測試數據</div>
+        </div>
+
+        <!-- 矩陣切換測試 -->
+        <div class="debug-section">
+            <h3>2. 矩陣切換測試</h3>
+            <button class="matrix-btn active" onclick="showMatrixType('first')" id="firstMatrixBtn">🔴 先手勝率矩陣</button>
+            <button class="matrix-btn" onclick="showMatrixType('second')" id="secondMatrixBtn">🔵 後手勝率矩陣</button>
+            
+            <div id="currentType" class="debug-info">當前顯示：先手</div>
+            
+            <!-- 先手矩陣 -->
+            <div id="firstMatrix" class="matrix-table-container active">
+                <h4>先手勝率矩陣</h4>
+                <div id="firstMatrixContent">等待數據載入...</div>
+            </div>
+            
+            <!-- 後手矩陣 -->
+            <div id="secondMatrix" class="matrix-table-container">
+                <h4>後手勝率矩陣</h4>
+                <div id="secondMatrixContent">等待數據載入...</div>
+            </div>
+        </div>
+
+        <!-- 數據詳情 -->
+        <div class="debug-section">
+            <h3>3. 數據詳情</h3>
+            <div id="dataDetails" class="debug-info">無數據</div>
+        </div>
+    </div>
+
+    <script>
+        const CLASS_LIST = ['精靈', '皇家', '巫師', '龍', '夜魔', '復仇者', '主教'];
+        let matrixData = null;
+
+        // 載入測試數據
+        function loadTestData() {
+            // 模擬測試數據
+            const testData = {
+                battleData: [
+                    {id: 1, myClass: '復仇者', opponentClass: '皇家', result: '勝', turnOrder: '先手'},
+                    {id: 2, myClass: '復仇者', opponentClass: '皇家', result: '敗', turnOrder: '後手'},
+                    {id: 3, myClass: '精靈', opponentClass: '龍', result: '勝', turnOrder: '後手'},
+                    {id: 4, myClass: '精靈', opponentClass: '巫師', result: '敗', turnOrder: '先手'},
+                    {id: 5, myClass: '復仇者', opponentClass: '精靈', result: '勝', turnOrder: '後手'},
+                ]
+            };
+            processData(testData);
+        }
+
+        // 處理數據
+        function processData(data) {
+            const matrix = {
+                first: {},
+                second: {}
+            };
+
+            // 初始化矩陣
+            CLASS_LIST.forEach(myClass => {
+                matrix.first[myClass] = {};
+                matrix.second[myClass] = {};
+                CLASS_LIST.forEach(opponentClass => {
+                    matrix.first[myClass][opponentClass] = { wins: 0, total: 0, winRate: 0 };
+                    matrix.second[myClass][opponentClass] = { wins: 0, total: 0, winRate: 0 };
+                });
+            });
+
+            // 統計對戰數據
+            data.battleData.forEach(battle => {
+                const { myClass, opponentClass, result, turnOrder } = battle;
+                
+                if (!turnOrder || !CLASS_LIST.includes(myClass) || !CLASS_LIST.includes(opponentClass)) {
+                    return;
+                }
+
+                const turnMatrix = turnOrder === '先手' ? matrix.first : matrix.second;
+                
+                if (turnMatrix[myClass] && turnMatrix[myClass][opponentClass]) {
+                    turnMatrix[myClass][opponentClass].total++;
+                    if (result === '勝') {
+                        turnMatrix[myClass][opponentClass].wins++;
+                    }
+                    
+                    const total = turnMatrix[myClass][opponentClass].total;
+                    const wins = turnMatrix[myClass][opponentClass].wins;
+                    turnMatrix[myClass][opponentClass].winRate = total > 0 ? Math.round((wins / total) * 100) : 0;
+                }
+            });
+
+            matrixData = matrix;
+            updateDataStatus(`數據載入成功！總對戰：${data.battleData.length}場`);
+            renderMatrixes();
+            showDataDetails();
+        }
+
+        // 渲染矩陣
+        function renderMatrixes() {
+            if (!matrixData) return;
+
+            renderMatrix('first', matrixData.first, 'firstMatrixContent');
+            renderMatrix('second', matrixData.second, 'secondMatrixContent');
+        }
+
+        function renderMatrix(type, data, containerId) {
+            const container = document.getElementById(containerId);
+            if (!container || !data) return;
+
+            let html = '<table>';
+            html += '<thead><tr><th>我方\\對手</th>';
+            CLASS_LIST.forEach(opponentClass => {
+                html += `<th>${opponentClass}</th>`;
+            });
+            html += '</tr></thead>';
+
+            html += '<tbody>';
+            CLASS_LIST.forEach(myClass => {
+                html += `<tr><th>${myClass}</th>`;
+                CLASS_LIST.forEach(opponentClass => {
+                    const stats = data[myClass][opponentClass];
+                    const cellContent = stats.total > 0 ? `${stats.winRate}%` : '--';
+                    const color = stats.winRate >= 70 ? '#4CAF50' : 
+                                 stats.winRate >= 50 ? '#FFC107' : 
+                                 stats.total > 0 ? '#F44336' : '#666';
+                    
+                    html += `<td style="background-color: ${color}; color: white;">
+                                ${cellContent}<br><small>(${stats.wins}/${stats.total})</small>
+                             </td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+
+            container.innerHTML = html;
+        }
+
+        // 切換矩陣類型
+        function showMatrixType(type) {
+            const firstBtn = document.getElementById('firstMatrixBtn');
+            const secondBtn = document.getElementById('secondMatrixBtn');
+            const firstMatrix = document.getElementById('firstMatrix');
+            const secondMatrix = document.getElementById('secondMatrix');
+            const currentType = document.getElementById('currentType');
+
+            // 更新按鈕狀態
+            firstBtn.classList.toggle('active', type === 'first');
+            secondBtn.classList.toggle('active', type === 'second');
+
+            // 更新矩陣顯示
+            firstMatrix.classList.toggle('active', type === 'first');
+            secondMatrix.classList.toggle('active', type === 'second');
+
+            // 更新狀態顯示
+            currentType.textContent = `當前顯示：${type === 'first' ? '先手' : '後手'}`;
+
+            console.log(`切換到${type === 'first' ? '先手' : '後手'}矩陣`);
+        }
+
+        // 更新數據狀態
+        function updateDataStatus(message) {
+            document.getElementById('dataStatus').textContent = message;
+        }
+
+        // 顯示數據詳情
+        function showDataDetails() {
+            if (!matrixData) return;
+
+            let details = '<h4>矩陣數據統計：</h4>';
+            
+            ['first', 'second'].forEach(type => {
+                const typeName = type === 'first' ? '先手' : '後手';
+                let totalBattles = 0;
+                
+                Object.keys(matrixData[type]).forEach(myClass => {
+                    Object.keys(matrixData[type][myClass]).forEach(opponentClass => {
+                        totalBattles += matrixData[type][myClass][opponentClass].total;
+                    });
+                });
+                
+                details += `<p><strong>${typeName}對戰總數：</strong>${totalBattles}場</p>`;
+            });
+
+            document.getElementById('dataDetails').innerHTML = details;
+        }
+
+        // 檔案上傳處理
+        document.getElementById('dataFile').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        processData(data);
+                    } catch (error) {
+                        updateDataStatus(`檔案載入失敗：${error.message}`);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -43,7 +43,19 @@ class UIController {
         
         // 如果是矩陣面板，渲染矩陣數據
         if (panelName === 'matrix') {
-            this.renderMatrix();
+            // 取得當前活躍的矩陣類型
+            const firstBtn = document.getElementById('firstMatrixBtn');
+            const currentType = firstBtn && firstBtn.classList.contains('active') ? 'first' : 'second';
+            
+            // 渲染所有矩陣數據（確保切換時有數據）
+            const matrixData = dataManager.getMatrixStatistics();
+            this.renderMatrixTable('firstMatrixTable', matrixData.first, '先手');
+            this.renderMatrixStats('firstMatrixStats', matrixData.first, '先手');
+            this.renderMatrixTable('secondMatrixTable', matrixData.second, '後手');
+            this.renderMatrixStats('secondMatrixStats', matrixData.second, '後手');
+            
+            // 顯示當前選中的矩陣
+            this.renderMatrix(currentType);
         }
     }
 
@@ -821,31 +833,25 @@ class UIController {
 
     // 渲染對戰矩陣
     renderMatrix(activeType = 'first') {
-        const matrixData = dataManager.getMatrixStatistics();
+        // 使用CSS類別控制顯示/隱藏
+        const firstMatrix = document.getElementById('firstMatrix');
+        const secondMatrix = document.getElementById('secondMatrix');
 
-        // 隱藏所有矩陣表格
-        const firstTable = document.getElementById('firstMatrixTable');
-        const secondTable = document.getElementById('secondMatrixTable');
-        const firstStats = document.getElementById('firstMatrixStats');
-        const secondStats = document.getElementById('secondMatrixStats');
-
-        if (firstTable) firstTable.style.display = 'none';
-        if (secondTable) secondTable.style.display = 'none';
-        if (firstStats) firstStats.style.display = 'none';
-        if (secondStats) secondStats.style.display = 'none';
-
-        // 根據類型顯示對應的矩陣
-        if (activeType === 'first') {
-            if (firstTable) firstTable.style.display = 'block';
-            if (firstStats) firstStats.style.display = 'block';
-            this.renderMatrixTable('firstMatrixTable', matrixData.first, '先手');
-            this.renderMatrixStats('firstMatrixStats', matrixData.first, '先手');
-        } else {
-            if (secondTable) secondTable.style.display = 'block';
-            if (secondStats) secondStats.style.display = 'block';
-            this.renderMatrixTable('secondMatrixTable', matrixData.second, '後手');
-            this.renderMatrixStats('secondMatrixStats', matrixData.second, '後手');
+        if (firstMatrix && secondMatrix) {
+            firstMatrix.classList.toggle('active', activeType === 'first');
+            secondMatrix.classList.toggle('active', activeType === 'second');
         }
+
+        // 取得矩陣數據
+        const matrixData = dataManager.getMatrixStatistics();
+        
+        // 渲染先手矩陣內容
+        this.renderMatrixTable('firstMatrixTable', matrixData.first, '先手');
+        this.renderMatrixStats('firstMatrixStats', matrixData.first, '先手');
+        
+        // 渲染後手矩陣內容
+        this.renderMatrixTable('secondMatrixTable', matrixData.second, '後手');
+        this.renderMatrixStats('secondMatrixStats', matrixData.second, '後手');
     }
 
     // 渲染矩陣表格
